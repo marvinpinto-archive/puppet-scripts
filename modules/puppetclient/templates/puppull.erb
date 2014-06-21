@@ -1,0 +1,87 @@
+#!/bin/bash
+
+PRIVATE_CONFDIR="<%= @private_confdir %>"
+PUBLIC_CONFDIR="<%= @public_confdir %>"
+DEPLOYMENT_KEY="<%= @deployment_private_key_loc %>"
+PUBLIC_REPO_URL="<%= @public_repo_url %>"
+PRIVATE_REPO_URL="<%= @private_repo_url %>"
+myname=`basename "$0"`
+
+fyi() {
+  echo "$myname: FYI:" "$@"
+}
+
+error() {
+  echo 1>&2 "$myname:" "$@"
+}
+
+fatal() {
+  error "$@"
+  exit 1
+}
+
+usage() {
+  fatal "usage: $myname"
+}
+
+
+git_clone_update() {
+  local localdir="$1"
+  local remoterepo="$2"
+
+  # Clone/update the private puppet repo
+  if [ -e "${localdir}/.git" ]; then
+
+    # Assumption here is that if the .git directory exists, the clone step as
+    # already been completed
+    cd "${localdir}" \
+      && /usr/bin/git fetch origin \
+      && /usr/bin/git merge origin/master \
+      && /usr/bin/git submodule init \
+      && /usr/bin/git submodule update
+
+  else
+
+    # Assumption: the .git directory does not exist, so most likely hasn't been
+    # cloned as yet
+    /usr/bin/git clone \
+      "${remoterepo}" \
+      "${localdir}"
+
+    # Clone any/all submodules as well
+    cd "${localdir}" \
+      && /usr/bin/git submodule init \
+      && /usr/bin/git submodule update
+
+  fi
+}
+
+
+# Need to be root
+if [ `id -u -n` != "root" ]; then
+    echo "must run as root, not" `id -u -n`
+    exit
+fi
+
+LOCKFILE=/tmp/puppulllock.txt
+if [ -e ${LOCKFILE} ] && kill -0 `cat ${LOCKFILE}`; then
+    echo "puppull already running"
+    exit
+fi
+
+# make sure the lockfile is removed when we exit and then claim it
+trap "rm -f ${LOCKFILE}; exit" INT TERM EXIT
+
+# echo our PID into the lockfile
+echo $$ > ${LOCKFILE}
+
+# Needed in order to specify a private key
+export GIT_SSH='<%= @git_puppet_ssh_wrapper_loc %>'
+
+# Clone/update the private & public puppet repos
+git_clone_update "${PRIVATE_CONFDIR}" "${PRIVATE_REPO_URL}"
+git_clone_update "${PUBLIC_CONFDIR}" "${PUBLIC_REPO_URL}"
+
+# Clean out the lockfile
+rm -f ${LOCKFILE}
+

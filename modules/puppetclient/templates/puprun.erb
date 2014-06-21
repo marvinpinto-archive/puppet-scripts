@@ -1,6 +1,7 @@
 #!/bin/bash
 
-PUPPETCONFDIR=<%= @confdir %>
+PRIVATE_CONFDIR=<%= @private_confdir %>
+PUBLIC_CONFDIR=<%= @public_confdir %>
 PUPSTOPFILE=<%= @pupstop_file %>
 myname=`basename "$0"`
 
@@ -69,12 +70,13 @@ else
 fi
 
 /usr/bin/puppet apply \
-  --hiera_config ${PUPPETCONFDIR}/hiera.yaml \
-  --config ${PUPPETCONFDIR}/puppet.conf \
-  --modulepath ${PUPPETCONFDIR}/modules \
+  --hiera_config ${PUBLIC_CONFDIR}/hiera.yaml \
+  --config ${PUBLIC_CONFDIR}/puppet.conf \
+  --modulepath ${PUBLIC_CONFDIR}/modules \
+  --modulepath ${PRIVATE_CONFDIR}/modules \
   --verbose \
   ${DRYRUNARG} \
-  ${PUPPETCONFDIR}/site.pp
+  ${PUBLIC_CONFDIR}/site.pp
 
 # Clean out the lockfile
 rm -f ${LOCKFILE}
