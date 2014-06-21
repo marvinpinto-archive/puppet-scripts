@@ -1,0 +1,12 @@
+#################################################
+# This file is managed by puppet - do not touch!
+#################################################
+# Purpose is to relay sendmail through external SMTP servers
+Root=<%= @rootemail %>
+Mailhub=<%= @smtp_server %>:<%= @smtp_port %>
+AuthUser=<%= @username %>
+AuthPass=<%= @password %>
+FromLineOverride=<%= @override_from %>
+UseTLS=<%= @use_tls %>
+UseSTARTTLS=<%= @use_starttls %>
+Hostname=<%= @fqdn %>
