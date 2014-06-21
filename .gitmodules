@@ -7,3 +7,6 @@
 [submodule "modules/ntp"]
 	path = modules/ntp
 	url = https://github.com/puppetlabs/puppetlabs-ntp.git
+[submodule "modules/timezone"]
+	path = modules/timezone
+	url = https://github.com/saz/puppet-timezone.git
