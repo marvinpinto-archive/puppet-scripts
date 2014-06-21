@@ -1,0 +1,31 @@
+#!/bin/bash
+
+PUPSTOPFILE=<%= @pupstop_file %>
+myname=`basename "$0"`
+
+fyi() {
+  echo "$myname: FYI:" "$@"
+}
+
+error() {
+  echo 1>&2 "$myname:" "$@"
+}
+
+fatal() {
+  error "$@"
+  exit 1
+}
+
+usage() {
+  fatal "usage: $myname"
+}
+
+# Need to be root
+if [ `id -u -n` != "root" ]; then
+    fatal "must run as root, not" `id -u -n`
+fi
+
+# Delete the pupstop file if it exists
+if [ -e ${PUPSTOPFILE} ]; then
+  rm -f ${PUPSTOPFILE}
+fi
