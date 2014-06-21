@@ -72,8 +72,7 @@ fi
 /usr/bin/puppet apply \
   --hiera_config ${PUBLIC_CONFDIR}/hiera.yaml \
   --config ${PUBLIC_CONFDIR}/puppet.conf \
-  --modulepath ${PUBLIC_CONFDIR}/modules \
-  --modulepath ${PRIVATE_CONFDIR}/modules \
+  --modulepath ${PUBLIC_CONFDIR}/modules:${PRIVATE_CONFDIR}/modules \
   --verbose \
   ${DRYRUNARG} \
   ${PUBLIC_CONFDIR}/site.pp
