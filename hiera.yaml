@@ -1,0 +1,12 @@
+# Hiera config file
+---
+:backends:
+  - yaml
+
+:yaml:
+  :datadir: /root/puppet/hieradata
+
+:hierarchy:
+  - nodes/%{::clientcert}
+  - os/%{::operatingsystem}
+  - common
