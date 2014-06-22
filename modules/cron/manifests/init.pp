@@ -41,5 +41,5 @@ class cron {
   }
 
   # Pull in the crontab values from hiera, if present
-  create_resources('cron::crontab', hiera_hash(crontab, {}))
+  create_resources('cron::crontab', hiera_hash(cron::crontabs, {}))
 }
