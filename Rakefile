@@ -24,6 +24,7 @@ PuppetLint.configuration.ignore_paths = [
   "modules/ntp/**/*.pp",
   "modules/stdlib/**/*.pp",
   "modules/timezone/**/*.pp",
+  "modules/supervisor/**/*.pp",
 ]
 
 # Disable the documentation check, for now

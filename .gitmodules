@@ -10,3 +10,6 @@
 [submodule "modules/timezone"]
 	path = modules/timezone
 	url = https://github.com/saz/puppet-timezone.git
+[submodule "modules/supervisor"]
+	path = modules/supervisor
+	url = https://github.com/plathrop/puppet-module-supervisor.git
