@@ -1,0 +1,7 @@
+#
+# cron-job for <%= @name %> (managed by puppet)
+#
+MAILTO="<%= @mailto %>"
+<% if @enabled != 'true' %># DISABLED-IN-PUPPET  <% end -%>
+<%= @minute %> <%= @hour %> <%= @day_of_month %> <%= @month %> <%= @day_of_week %> <%= @user %> <%= @command %>
+
