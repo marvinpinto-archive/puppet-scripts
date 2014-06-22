@@ -10,8 +10,8 @@ class cron {
   }
 
   file { 'etc-crontab':
-    path   => '/etc/crontab',
     ensure => file,
+    path   => '/etc/crontab',
     source => 'puppet:///modules/cron/crontab',
     owner  => 'root',
     group  => 'root',
@@ -20,8 +20,8 @@ class cron {
 
   # Get rid of anything in here that's not managed by us
   file { 'etc-cron.d':
-    path    => '/etc/cron.d',
     ensure  => directory,
+    path    => '/etc/cron.d',
     owner   => 'root',
     group   => 'root',
     mode    => '0655',
@@ -32,8 +32,8 @@ class cron {
   # This placeholder file is apparently needed by dpkg. This isn't ghetto at
   # all.
   file { 'etc-cron.d-placeholder':
-    path   => '/etc/cron.d/.placeholder',
     ensure => file,
+    path   => '/etc/cron.d/.placeholder',
     source => 'puppet:///modules/cron/placeholder',
     owner  => 'root',
     group  => 'root',

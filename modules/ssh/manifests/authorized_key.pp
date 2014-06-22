@@ -5,8 +5,8 @@ define ssh::authorized_key (
 ) {
 
   file { "ssh-auth-key-for-${keyuser}":
-    path    => "/etc/ssh/KEYS/${keyuser}",
     ensure  => $ensure,
+    path    => "/etc/ssh/KEYS/${keyuser}",
     owner   => 'root',
     group   => 'root',
     mode    => '0444',

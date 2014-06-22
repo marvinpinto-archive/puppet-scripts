@@ -1,12 +1,12 @@
 class ssmtp(
-  $rootemail,
-  $smtp_server,
-  $smtp_port,
-  $username,
-  $password,
-  $override_from,
-  $use_tls,
-  $use_starttls,
+  $rootemail = undef,
+  $smtp_server = undef,
+  $smtp_port = undef,
+  $username = undef,
+  $password = undef,
+  $override_from = undef,
+  $use_tls = undef,
+  $use_starttls = undef,
 ) {
 
   # Require apt & friends before we do anything here
@@ -22,10 +22,10 @@ class ssmtp(
   }
 
   file { 'ssmtp.conf':
-    path    => '/etc/ssmtp/ssmtp.conf',
     ensure  => present,
+    path    => '/etc/ssmtp/ssmtp.conf',
     require => Package[$mail_pkgs],
-    content => template("ssmtp/ssmtp.conf.erb"),
+    content => template('ssmtp/ssmtp.conf.erb'),
   }
 
 }

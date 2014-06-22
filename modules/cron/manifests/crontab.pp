@@ -1,5 +1,4 @@
 define cron::crontab (
-  $mailto = '',
   $minute,
   $hour,
   $day_of_month,
@@ -7,12 +6,13 @@ define cron::crontab (
   $day_of_week,
   $command,
   $user,
-  $enabled = 'true',
+  $mailto = '',
+  $enabled = true,
 ) {
 
   file { "crontab-entry-for-${name}":
-    path    => "/etc/cron.d/${name}",
     ensure  => file,
+    path    => "/etc/cron.d/${name}",
     owner   => 'root',
     group   => 'root',
     mode    => '0400',

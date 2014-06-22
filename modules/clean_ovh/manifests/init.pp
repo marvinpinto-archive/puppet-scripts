@@ -17,8 +17,8 @@ class clean_ovh {
 
 
   file { 'rtm-monitor':
-    path    => '/usr/local/rtm',
     ensure  => absent,
+    path    => '/usr/local/rtm',
     recurse => true,
     force   => true,
   }

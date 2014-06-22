@@ -1,12 +1,12 @@
 class puppetclient(
-  $pupstop_file,
-  $private_confdir,
-  $public_confdir,
-  $deployment_private_key_contents,
-  $deployment_private_key_loc,
-  $public_repo_url,
-  $private_repo_url,
-  $git_puppet_ssh_wrapper_loc,
+  $pupstop_file = '/tmp/pupstop',
+  $private_confdir = undef,
+  $public_confdir = undef,
+  $deployment_private_key_contents = undef,
+  $deployment_private_key_loc = undef,
+  $public_repo_url = undef,
+  $private_repo_url = undef,
+  $git_puppet_ssh_wrapper_loc = undef,
 ) {
 
   # The utils class contains git, amongst other things

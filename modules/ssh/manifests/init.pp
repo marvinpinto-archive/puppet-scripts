@@ -1,6 +1,6 @@
 class ssh (
-  $port,
-  $permit_root_login,
+  $port = '22',
+  $permit_root_login = 'no',
 ) {
 
   package { 'openssh-server':
@@ -33,20 +33,20 @@ class ssh (
   }
 
   file { '/etc/ssh/sshd_config':
+    ensure  => present,
     mode    => '0644',
     owner   => 'root',
     group   => 'root',
-    ensure  => present,
     path    => '/etc/ssh/sshd_config',
     content => template('ssh/sshd_config.erb'),
     require => File['/etc/ssh'],
   }
 
   file { '/etc/ssh/ssh_known_hosts':
+    ensure  => present,
     mode    => '0444',
     owner   => 'root',
     group   => 'root',
-    ensure  => present,
     path    => '/etc/ssh/ssh_known_hosts',
     require => File['/etc/ssh'],
   }
@@ -63,6 +63,9 @@ class ssh (
   # using puppet's 'ssh_authorized_key' resouce was that I need my ssh keys in
   # /etc/ssh/KEYS/%u. Using that resource, puppet attempts to do weird things
   # such as depend on said user, etc, which was way more than I needed.
-  create_resources('ssh::authorized_key', hiera_hash('ssh::authorized_keys', {}))
+  create_resources(
+    'ssh::authorized_key',
+    hiera_hash('ssh::authorized_keys', {})
+  )
 
 }

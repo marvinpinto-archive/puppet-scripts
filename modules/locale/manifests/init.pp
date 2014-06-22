@@ -8,24 +8,24 @@ class locale {
 
   # Force the locale to en_US.UTF-8
   file { 'default-locale':
-    path     => '/etc/default/locale',
-    owner    => 'root',
-    group    => 'root',
-    mode     => '0644',
+    path    => '/etc/default/locale',
+    owner   => 'root',
+    group   => 'root',
+    mode    => '0644',
     content => 'LC_ALL="en_US.UTF-8"',
-    notify   => Exec['dpkg-reconfigure-locales'],
-    require  => Package['language-pack-en'],
+    notify  => Exec['dpkg-reconfigure-locales'],
+    require => Package['language-pack-en'],
   }
 
   # Force the default language to be en_US
   file { 'etc-environment':
-    path     => '/etc/environment',
-    owner    => 'root',
-    group    => 'root',
-    mode     => '0644',
+    path    => '/etc/environment',
+    owner   => 'root',
+    group   => 'root',
+    mode    => '0644',
     content => 'LANG=en_US',
-    notify   => Exec['dpkg-reconfigure-locales'],
-    require  => Package['language-pack-en'],
+    notify  => Exec['dpkg-reconfigure-locales'],
+    require => Package['language-pack-en'],
   }
 
   exec { 'dpkg-reconfigure-locales':
@@ -34,8 +34,14 @@ class locale {
     notify      => Exec['purge-unneeded-locales']
   }
 
+  $purge_cmd = shellquote(
+    '/usr/sbin/locale-gen',
+    '--purge',
+    'en_US',
+    'en_US.UTF-8'
+  )
   exec { 'purge-unneeded-locales':
-    command     => shellquote('/usr/sbin/locale-gen', '--purge', 'en_US', 'en_US.UTF-8'),
+    command     => $purge_cmd,
     refreshonly => true,
     notify      => Exec['clean-apt-cache']
   }
