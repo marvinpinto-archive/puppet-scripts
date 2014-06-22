@@ -15,13 +15,6 @@ class clean_ovh {
     ensure => purged,
   }
 
-  file { 'etc-crontab':
-    path   => '/etc/crontab',
-    ensure => file,
-    source => "puppet:///modules/clean_ovh/crontab",
-    owner  => 'root',
-    group  => 'root',
-  }
 
   file { 'rtm-monitor':
     path    => '/usr/local/rtm',
