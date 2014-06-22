@@ -42,6 +42,15 @@ class ssh (
     require => File['/etc/ssh'],
   }
 
+  file { '/etc/ssh/ssh_known_hosts':
+    mode    => '0444',
+    owner   => 'root',
+    group   => 'root',
+    ensure  => present,
+    path    => '/etc/ssh/ssh_known_hosts',
+    require => File['/etc/ssh'],
+  }
+
   # Put in place some needed ssh host keys (if supplied). These values are
   # pulled in directly from hiera (see README.md for examples). This
   # essentially uses the puppet-defined 'sshkey' resource since there really is
