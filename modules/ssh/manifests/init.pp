@@ -1,6 +1,7 @@
 class ssh (
   $port = '22',
   $permit_root_login = 'no',
+  $allow_password_auth = 'yes',
 ) {
 
   package { 'openssh-server':
