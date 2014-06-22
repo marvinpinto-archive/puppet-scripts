@@ -74,6 +74,7 @@ fi
   --config ${PUBLIC_CONFDIR}/puppet.conf \
   --modulepath ${PUBLIC_CONFDIR}/modules:${PRIVATE_CONFDIR}/modules \
   --verbose \
+  --show_diff \
   ${DRYRUNARG} \
   ${PUBLIC_CONFDIR}/site.pp
 
