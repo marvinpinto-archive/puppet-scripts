@@ -13,3 +13,6 @@
 [submodule "modules/supervisor"]
 	path = modules/supervisor
 	url = https://github.com/plathrop/puppet-module-supervisor.git
+[submodule "modules/firewall"]
+	path = modules/firewall
+	url = https://github.com/puppetlabs/puppetlabs-firewall.git
