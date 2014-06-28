@@ -1,0 +1,104 @@
+#!/bin/bash
+
+S3CFG="<%= @s3cfg %>"
+S3CMD="<%= @s3cmd %>"
+S3BUCKETNAME="<%= @s3bucket %>"
+S3BUCKETPATH="<%= @s3bucket_path %>"
+BACKUP_DIR="<%= @src_backup_dir %>"
+BACKUP_FILENAME="<%= @dest_tarball_filename %>"
+SYSLOG_TAG="<%= @syslog_tag %>"
+myname=`basename "$0"`
+LOCKFILE="/tmp/${BACKUP_FILENAME}-lock.txt"
+
+# pipefail is useful
+set -o pipefail
+
+info() {
+  /usr/bin/logger --id --priority local3.info --tag ${SYSLOG_TAG} "INFO: $@"
+}
+
+warn() {
+  /usr/bin/logger --id --stderr --priority local3.warning --tag ${SYSLOG_TAG} "WARN: $@"
+}
+
+error() {
+  /usr/bin/logger --id --stderr --priority local3.err --tag ${SYSLOG_TAG} "ERROR: $@"
+  exit 1
+}
+
+usage() {
+  echo "usage: $myname"
+  exit 1
+}
+
+cleanup() {
+  # Get rid of the destination tarball, if it exists
+  info "Cleaning up /tmp/${BACKUP_FILENAME}.tar.gz (if it exists)"
+  /bin/rm -f "/tmp/${BACKUP_FILENAME}.tar.gz"
+}
+
+create_tarball() {
+  # Create the tarball
+  info "Backing ${BACKUP_DIR} up to ${S3BUCKETNAME} now"
+  /bin/tar \
+    czf \
+    "/tmp/${BACKUP_FILENAME}.tar.gz" \
+    "${BACKUP_DIR}" 2>&1 \
+    | /usr/bin/logger --id \
+    --priority 'local3.info' \
+    --tag "${SYSLOG_TAG}"
+
+  # What we really care about here is the return status of the (above) tarball
+  # command. Note that PIPESTATUS[0] stores the exit code of the first command
+  # in the (piped) chain since we 'set -o pipefail' earlier.
+  return ${PIPESTATUS[0]}
+}
+
+backup_files() {
+  # Upload the tarball to S3
+  /usr/bin/s3cmd \
+    --config="${S3CFG}" \
+    put "/tmp/${BACKUP_FILENAME}.tar.gz" \
+    "s3://${S3BUCKETNAME}/${S3BUCKETPATH}/${BACKUP_FILENAME}.tar.gz" 2>&1 \
+    | /usr/bin/logger --id \
+    --priority 'local3.info' \
+    --tag "${SYSLOG_TAG}"
+
+  # What we really care about here is the return status of the (above) s3cmd
+  # command. Note that PIPESTATUS[0] stores the exit code of the first command
+  # in the (piped) chain since we 'set -o pipefail' earlier.
+  return ${PIPESTATUS[0]}
+}
+
+if [ -e ${LOCKFILE} ] && kill -0 `cat ${LOCKFILE}`; then
+  echo "${myname} already running"
+  exit
+fi
+
+# make sure the lockfile is removed when we exit and then claim it
+trap "rm -f ${LOCKFILE}; exit" INT TERM EXIT
+
+# echo our PID into the lockfile
+echo $$ > ${LOCKFILE}
+
+# Starting!
+info "Starting backup of ${BACKUP_DIR} up to ${S3BUCKETNAME}"
+cleanup
+
+# If this portion fails, we should probably not bother continuing
+create_tarball
+if [ $? -ne 0 ]; then
+  error "Backup of ${BACKUP_DIR} erred out when attempting to create the tarball. Check the logs for details"
+fi
+
+backup_files
+if [ $? -ne 0 ]; then
+  error "Backup of ${BACKUP_DIR} erred out when attempting to upload the tarball to s3. Check the logs for details"
+fi
+
+# Final cleanup!
+cleanup
+info "Backup of ${BACKUP_DIR} up to ${S3BUCKETNAME} complete!"
+
+# Clean out the lockfile
+rm -f ${LOCKFILE}

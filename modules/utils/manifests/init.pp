@@ -1,20 +1,9 @@
 class utils {
 
-  # Utility packages I'll need installed
-  $util_pkgs = [
-    'git',
-    'whois',
-    'tmux',
-    'ack-grep',
-    'iftop',
-    'htop',
-    'curl',
-    'dos2unix',
-    'vim',
-  ]
+  # require updated sources, etc before attempting anything here
+  require 'apt'
 
-  package { $util_pkgs:
-    ensure => installed,
-  }
+  include 'utils::cleanup'
+  include 'utils::install'
 
 }

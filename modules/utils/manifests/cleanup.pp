@@ -1,20 +1,20 @@
-class clean_ovh {
+class utils::cleanup {
 
   $bad_pkgs = [
     'bind9',
     'hddtemp',
     'mdadm',
-    'smartmontools'
+    'smartmontools',
+    'ufw',
+    'apparmor',
+    'apparmor-utils',
+    'libapparmor-perl',
+    'libapparmor1',
   ]
 
-  package { 'linux-image-server':
-    ensure => installed,
-  }
-
   package { $bad_pkgs:
-    ensure => purged,
+    ensure => absent, 
   }
-
 
   file { 'rtm-monitor':
     ensure  => absent,
@@ -24,4 +24,3 @@ class clean_ovh {
   }
 
 }
-
