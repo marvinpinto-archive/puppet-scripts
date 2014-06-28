@@ -7,6 +7,7 @@ class puppetclient(
   $public_repo_url = undef,
   $private_repo_url = undef,
   $git_puppet_ssh_wrapper_loc = undef,
+  $git_branch = 'master',
 ) {
 
   # The utils class contains git, amongst other things
