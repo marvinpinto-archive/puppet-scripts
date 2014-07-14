@@ -13,7 +13,7 @@ class utils::cleanup {
   ]
 
   package { $bad_pkgs:
-    ensure => absent, 
+    ensure => absent,
   }
 
   file { 'rtm-monitor':

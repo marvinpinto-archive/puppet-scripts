@@ -39,7 +39,7 @@ cleanup() {
 
 create_tarball() {
   # Create the tarball
-  info "Backing ${BACKUP_DIR} up to ${S3BUCKETNAME} now"
+  info "Creating a tarball of ${BACKUP_DIR} now"
   /bin/tar \
     czf \
     "/tmp/${BACKUP_FILENAME}.tar.gz" \
@@ -51,11 +51,18 @@ create_tarball() {
   # What we really care about here is the return status of the (above) tarball
   # command. Note that PIPESTATUS[0] stores the exit code of the first command
   # in the (piped) chain since we 'set -o pipefail' earlier.
-  return ${PIPESTATUS[0]}
+  retval=${PIPESTATUS[0]}
+
+  # Calculate and print out the size of the tarball
+  tballsize=`/usr/bin/du -hs "/tmp/${BACKUP_FILENAME}.tar.gz" | awk 'BEGIN {FS=" "}{print $1}'`
+  info "Size of /tmp/${BACKUP_FILENAME}.tar.gz is ${tballsize}"
+
+  return $retval
 }
 
 backup_files() {
   # Upload the tarball to S3
+  info "Backing ${BACKUP_FILENAME}.tar.gz up to ${S3BUCKETNAME} now"
   /usr/bin/s3cmd \
     --config="${S3CFG}" \
     put "/tmp/${BACKUP_FILENAME}.tar.gz" \
