@@ -1,0 +1,163 @@
+#! /bin/sh
+### BEGIN INIT INFO
+# Provides:          <%= @title %>
+# Required-Start:    $remote_fs $syslog
+# Required-Stop:     $remote_fs $syslog
+# Default-Start:     2 3 4 5
+# Default-Stop:      0 1 6
+# Short-Description: Irssi init script
+# Description:       Init script to start + maintain irssi running under tmux
+### END INIT INFO
+
+#
+# Author: Marvin Pinto <me@marvinp.ca>
+#
+
+# Do NOT "set -e"
+
+# PATH should only include /usr/* if it runs after the mountnfs.sh script
+USER=<%= @irssi_user %>
+PATH=/sbin:/usr/sbin:/bin:/usr/bin
+DESC="Starts the personalim service"
+NAME=<%= @title %>
+SESSIONNAME=<%= @title %>
+COMMAND='/usr/bin/irssi --home=<%= @irssi_dir %>'
+TMUXCONF="<%= @irssi_dir %>/${NAME}-tmux.conf"
+SCRIPTNAME=/etc/init.d/$NAME
+
+# Load the VERBOSE setting and other rcS variables
+. /lib/init/vars.sh
+
+# Define LSB log_* functions.
+# Depend on lsb-base (>= 3.2-14) to ensure that this file is present
+# and status_of_proc is working.
+. /lib/lsb/init-functions
+
+# Source in our needed enviroment variables
+[ -f /etc/default/${NAME} ] && . /etc/default/${NAME}
+
+# Bail out if the tmux.conf file doesn't exist
+[ -f ${TMUXCONF} ] || ( log_failure_msg "${TMUXCONF} does not exist!" && exit 1 )
+
+#
+# Function to determine if the specified (named) tmux session exists
+#
+tmux_session()
+{
+  su --command "tmux has-session -t ${SESSIONNAME} >/dev/null 2>&1" ${USER}
+  if [ $? -eq 0 ]; then
+    # a tmux session by this name already exists
+    return 0
+  else
+    return 1
+  fi
+}
+
+#
+# Function that starts the daemon/service
+#
+do_start()
+{
+  # Return
+  #   0 if daemon has been started
+  #   1 if daemon was already running
+  #   2 if daemon could not be started
+
+  # Attempt to deterine if the daemon was already running
+  tmux_session
+  if [ $? -eq 0 ]; then
+    return 1
+  fi
+
+  # Now attempt to start it
+  su --command "/usr/bin/tmux -f ${TMUXCONF} new-session -s ${SESSIONNAME} -d '${COMMAND}'" ${USER}
+  if [ $? -eq 0 ]; then
+    return 0
+  else
+    return 2
+  fi
+}
+
+#
+# Function that stops the daemon/service
+#
+do_stop()
+{
+  # Return
+  #   0 if daemon has been stopped
+  #   1 if daemon was already stopped
+  #   2 if daemon could not be stopped
+  #   other if a failure occurred
+
+  # Attempt to deterine if the daemon was already running
+  tmux_session
+  if [ $? -eq 1 ]; then
+    return 1
+  fi
+
+  # Now attempt to start it
+  su --command "/usr/bin/tmux kill-session -t ${SESSIONNAME}" ${USER}
+  if [ $? -eq 0 ]; then
+    return 0
+  else
+    return 2
+  fi
+}
+
+
+case "$1" in
+start)
+  [ "$VERBOSE" != no ] && log_daemon_msg "Starting $DESC" "$NAME"
+  do_start
+  case "$?" in
+  0|1) [ "$VERBOSE" != no ] && log_end_msg 0 ;;
+  2) [ "$VERBOSE" != no ] && log_end_msg 1 ;;
+  esac
+  ;;
+stop)
+  [ "$VERBOSE" != no ] && log_daemon_msg "Stopping $DESC" "$NAME"
+  do_stop
+  case "$?" in
+  0|1) [ "$VERBOSE" != no ] && log_end_msg 0 ;;
+  2) [ "$VERBOSE" != no ] && log_end_msg 1 ;;
+  esac
+  ;;
+status)
+  tmux_session
+  if [ $? -eq 0 ]; then
+    log_success_msg "${NAME} is running"
+    exit 0
+  else
+    log_failure_msg "${NAME} is not running"
+    exit 1
+  fi
+  ;;
+restart|force-reload)
+  #
+  # If the "reload" option is implemented then remove the
+  # 'force-reload' alias
+  #
+  log_daemon_msg "Restarting $DESC" "$NAME"
+  do_stop
+  case "$?" in
+  0|1)
+    do_start
+    case "$?" in
+    0) log_end_msg 0 ;;
+    1) log_end_msg 1 ;; # Old process is still running
+    *) log_end_msg 1 ;; # Failed to start
+    esac
+    ;;
+  *)
+    # Failed to stop
+    log_end_msg 1
+    ;;
+  esac
+  ;;
+*)
+  echo "Usage: $SCRIPTNAME {start|stop|status|restart|force-reload}" >&2
+  exit 3
+  ;;
+esac
+
+:
