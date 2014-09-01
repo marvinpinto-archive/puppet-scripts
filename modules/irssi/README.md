@@ -1,3 +1,77 @@
+irssi::bitlbee\_nick\_instances
+=============================
+
+A hash. Bitlbee instances, each of which connects to multiple services and
+accounts. Typically one would Use this for non-IRC services (eg jabber, gtalk).
+
+Each entry creates a bitlbee instance configured by a single configuration file.
+
+Keys are usernames for each of the bitblee instances.
+Values are a hash to configure their bitlbee instance and the services it
+connects to..
+Valid keys for that hash:
+
+* nick\_hashed\_password (string) - Your hashed bitlbee identify password. You
+  can generate a new one by running `bitlbee -x hash $new_password`. See [wiki
+page](http://wiki.bitlbee.org/DecodingPasswords) for more details.
+* accounts (hash) - see `accounts` section
+* channels (hash) - see `channels` section
+
+
+irssi::bitlbee\_nick\_instances - accounts
+----------------------------------------
+
+Keys are only used to document.
+Each value is a hash that populates a single
+user:account node. Available keys in this hash:
+
+* `account_options` (hash) - populates attributes of user:accounts xml
+  node. Keys are attribute names, values (strings) are the attribute values.
+  Valid keys:
+
+    * `handle` (string)
+    * `password` (string): password for that account encrypted using your
+      identify password as the key. Value can be obtained using
+      `bitlbee -x enc $account_password $identify_password`.
+    * `protocol` (string): One of bitlbee's supported protocols, eg `jabber`,
+      `msn`, `twitter`.
+
+    Other valid keys such as `server` can also be set using the `settings` hash,
+    described below. (Proof: [the
+    source](https://github.com/vmiklos/bitlbee/blob/master/storage_xml.c#L94).)
+
+* `settings (hash)` - one entry per user:accounts:setting node. Key sets the
+  value of the `name` attribute; value (string) is the node value. See the
+  [`account set` wiki
+  article](http://wiki.bitlbee.org/Commands#account_.3Caccount_id.3E_set).
+
+
+irssi::bitlbee\_nick\_instances - channels
+----------------------------------------
+
+Add an entry to this hash for each chatroom you care about. (?? what is 'type':
+'control'?)
+
+Keys are only used to document.
+Each value is a hash that populate a single
+user:channel xml node. Available keys in this hash:
+
+* `name` (string) - populates the name attribute on the user:channel node.
+  `name` should begin with a `&amp;` or `#`.
+* `type` (string) - populates the type attribute on the user:channel node. If
+  name begins with `&`, `type` should be `'control'`. Otherwise it should be
+  `chat`. You should have at least one control channel. See `help channels` for
+  more info.
+* `settings` (hash) - one entry per user:channel:setting node. Key populates the
+  name attribute, value (string) is the node value. Complete list of available
+  settings can be seen by using `channel <channel_id> set`. Here are some:
+    * `'chat_type'`: eg, `'room'`
+    * `'room'`: The address of the chat room, eg
+      `'secretroom@conference.jabber.foobar.com'`
+    * `'password'`: The password for the room, if applicable
+    * `'auto_join`': `'true'`, `'false'`
+
+
 irssi::instances
 ================
 
