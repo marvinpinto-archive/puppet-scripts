@@ -1,6 +1,6 @@
 #! /bin/sh
 ### BEGIN INIT INFO
-# Provides:          <%= @title %>
+# Provides:          <%= @instance_name %>
 # Required-Start:    $remote_fs $syslog
 # Required-Stop:     $remote_fs $syslog
 # Default-Start:     2 3 4 5
@@ -19,8 +19,8 @@
 USER=<%= @irssi_user %>
 PATH=/sbin:/usr/sbin:/bin:/usr/bin
 DESC="Starts the personalim service"
-NAME=<%= @title %>
-SESSIONNAME=<%= @title %>
+NAME=<%= @instance_name %>
+SESSIONNAME=<%= @instance_name %>
 COMMAND='/usr/bin/irssi --home=<%= @irssi_dir %>'
 TMUXCONF="<%= @irssi_dir %>/${NAME}-tmux.conf"
 SCRIPTNAME=/etc/init.d/$NAME

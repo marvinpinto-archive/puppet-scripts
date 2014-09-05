@@ -15,6 +15,7 @@ define irssi::instance (
 
   # Composed variables
   $irssi_dir = "${instance_basedir}/${title}"
+  $instance_name = "${title}-irssi-instance"
 
   # Base irssi config directory (read-only)
   file { $irssi_dir:
@@ -101,7 +102,7 @@ define irssi::instance (
   }
 
   # tmux.conf
-  file { "${irssi_dir}/${title}-tmux.conf":
+  file { "${irssi_dir}/${instance_name}-tmux.conf":
     source  => 'puppet:///modules/irssi/tmux.conf',
     owner   => $irssi_user,
     group   => $irssi_group,
@@ -119,7 +120,7 @@ define irssi::instance (
   }
 
   # /etc/default file
-  file { "/etc/default/${title}":
+  file { "/etc/default/${instance_name}":
     ensure  => file,
     content => template('irssi/irssi-default.erb'),
     owner   => 'root',
@@ -128,17 +129,17 @@ define irssi::instance (
   }
 
   # init.d file
-  file { "/etc/init.d/${title}":
+  file { "/etc/init.d/${instance_name}":
     ensure  => file,
     content => template('irssi/irssi-init.erb'),
     owner   => 'root',
     group   => 'root',
     mode    => '0755',
-    require => File["/etc/default/${title}"],
+    require => File["/etc/default/${instance_name}"],
   }
 
   # Requirements before tmux/irssi can start under supervisor (these also
-  # trigger service refreshses)
+  # trigger service refreshes)
   $svc_reqs = [
     File["${irssi_dir}/sasl.auth"],
     File["${irssi_dir}/config"],
@@ -146,18 +147,19 @@ define irssi::instance (
     File["${irssi_dir}/fear2.theme"],
     File["${irssi_dir}/scripts/autorun"],
     File[$instance_logdir],
-    File["${irssi_dir}/${title}-tmux.conf"],
+    File["${irssi_dir}/${instance_name}-tmux.conf"],
     File["${irssi_dir}/startup"],
-    File["/etc/init.d/${title}"],
+    File["/etc/init.d/${instance_name}"],
     Service['bitlbee'],
   ]
 
   # And finally the (ghetto) init-based service that keeps this house of cards
   # from crumbling
-  service { $title:
+  service { $instance_name:
     ensure    => 'running',
     enable    => true,
     subscribe => $svc_reqs,
+    require   => File["/etc/init.d/${instance_name}"],
   }
 
 }
