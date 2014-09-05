@@ -21,9 +21,15 @@ chatnets = {
   <% @chatnets.each do |k, v| -%>
   <%= k %> = {
     type = "<%= v['type'] %>";
+    <% if v['nick'] %>
     nick = "<%= v['nick'] %>";
+    <% end -%>
+    <% if v['username'] %>
     username = "<%= v['username'] %>";
+    <% end -%>
+    <% if v['realname'] %>
     realname = "<%= v['realname'] %>";
+    <% end -%>
   };
   <% end -%>
 };
