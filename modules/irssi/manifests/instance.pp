@@ -14,8 +14,8 @@ define irssi::instance (
 ) {
 
   # Composed variables
-  $irssi_dir = "${instance_basedir}/${title}"
   $instance_name = "${title}-irssi-instance"
+  $irssi_dir = "${instance_basedir}/${instance_name}"
 
   # Base irssi config directory (read-only)
   file { $irssi_dir:
