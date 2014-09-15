@@ -8,23 +8,17 @@ PRIVATE_REPO_URL="<%= @private_repo_url %>"
 GIT_BRANCH="<%= @git_branch %>"
 myname=`basename "$0"`
 
-fyi() {
-  echo "$myname: FYI:" "$@"
+info() {
+  # This allows us to use this bash function as a pipe destination which makes
+  # logging slightly easier
+  read INPUT
+  /usr/bin/logger --id --priority local3.info --tag ${myname} "INFO: $INPUT"
 }
 
 error() {
-  echo 1>&2 "$myname:" "$@"
-}
-
-fatal() {
-  error "$@"
+  /usr/bin/logger --id --stderr --priority local3.err --tag ${myname} "ERROR: $@"
   exit 1
 }
-
-usage() {
-  fatal "usage: $myname"
-}
-
 
 git_clone_update() {
   local localdir="$1"
@@ -40,7 +34,14 @@ git_clone_update() {
       && /usr/bin/git reset --hard "origin/${GIT_BRANCH}" \
       && /usr/bin/git checkout "${GIT_BRANCH}" \
       && /usr/bin/git submodule init \
-      && /usr/bin/git submodule update
+      && /usr/bin/git submodule update \
+      |& info
+
+    # Note: If ‘|&’ is used, the standard error of command1 is connected to
+    # command2’s standard input through the pipe; it is shorthand for 2>&1 |.
+    # This implicit redirection of the standard error is performed after any
+    # redirections specified by the command.
+    # Source: http://www.gnu.org/software/bash/manual/bash.html#Pipelines
 
   else
 
@@ -48,13 +49,15 @@ git_clone_update() {
     # cloned as yet
     /usr/bin/git clone \
       "${remoterepo}" \
-      "${localdir}"
+      "${localdir}" \
+      |& info
 
     # Clone any/all submodules as well
     cd "${localdir}" \
       && /usr/bin/git checkout "${GIT_BRANCH}" \
       && /usr/bin/git submodule init \
-      && /usr/bin/git submodule update
+      && /usr/bin/git submodule update \
+      |& info
 
   fi
 }
@@ -62,14 +65,12 @@ git_clone_update() {
 
 # Need to be root
 if [ `id -u -n` != "root" ]; then
-    echo "must run as root, not" `id -u -n`
-    exit
+  error "Must run as root, not" `id -u -n`
 fi
 
 LOCKFILE=/tmp/puppulllock.txt
 if [ -e ${LOCKFILE} ] && kill -0 `cat ${LOCKFILE}`; then
-    echo "puppull already running"
-    exit
+  error "puppull is already running"
 fi
 
 # make sure the lockfile is removed when we exit and then claim it
