@@ -8,6 +8,9 @@ PRIVATE_REPO_URL="<%= @private_repo_url %>"
 GIT_BRANCH="<%= @git_branch %>"
 myname=`basename "$0"`
 
+# pipefail is useful
+set -o pipefail
+
 info() {
   # This allows us to use this bash function as a pipe destination which makes
   # logging slightly easier
@@ -37,6 +40,15 @@ git_clone_update() {
       "${remoterepo}" \
       "${localdir}" \
       |& info
+
+    # What we really care about here is the return status of the first command.
+    # Note that PIPESTATUS[0] stores the exit code of the first command in the
+    # (piped) chain since we 'set -o pipefail' earlier.
+    retval=${PIPESTATUS[0]}
+
+    if [ $retval != 0 ]; then
+      return $retval
+    fi
   fi
 
   cd "${localdir}" \
@@ -46,6 +58,9 @@ git_clone_update() {
     && /usr/bin/git submodule sync \
     && /usr/bin/git submodule update --recursive \
     |& info
+
+  retval=${PIPESTATUS[0]}
+  return $retval
 }
 
 
@@ -68,9 +83,17 @@ echo $$ > ${LOCKFILE}
 # Needed in order to specify a private key
 export GIT_SSH='<%= @git_puppet_ssh_wrapper_loc %>'
 
-# Clone/update the private & public puppet repos
+# Clone/update the private puppet repo
 git_clone_update "${PRIVATE_CONFDIR}" "${PRIVATE_REPO_URL}"
+if [ $? != 0 ]; then
+  error "Something went wrong when running command: git_clone_update ${PRIVATE_CONFDIR} ${PRIVATE_REPO_URL}"
+fi
+
+# Clone/update the public puppet repo
 git_clone_update "${PUBLIC_CONFDIR}" "${PUBLIC_REPO_URL}"
+if [ $? != 0 ]; then
+  error "Something went wrong when running command: git_clone_update ${PUBLIC_CONFDIR} ${PUBLIC_REPO_URL}"
+fi
 
 # Clean out the lockfile
 rm -f ${LOCKFILE}
