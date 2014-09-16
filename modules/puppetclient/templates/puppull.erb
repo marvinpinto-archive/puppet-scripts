@@ -24,42 +24,28 @@ git_clone_update() {
   local localdir="$1"
   local remoterepo="$2"
 
-  # Clone/update the private puppet repo
-  if [ -e "${localdir}/.git" ]; then
+  # Note: If ‘|&’ is used, the standard error of command1 is connected to
+  # command2’s standard input through the pipe; it is shorthand for 2>&1 |.
+  # This implicit redirection of the standard error is performed after any
+  # redirections specified by the command.
+  # Source: http://www.gnu.org/software/bash/manual/bash.html#Pipelines
 
-    # Assumption here is that if the .git directory exists, the clone step as
-    # already been completed
-    cd "${localdir}" \
-      && /usr/bin/git fetch origin \
-      && /usr/bin/git reset --hard "origin/${GIT_BRANCH}" \
-      && /usr/bin/git checkout "${GIT_BRANCH}" \
-      && /usr/bin/git submodule init \
-      && /usr/bin/git submodule update \
-      |& info
-
-    # Note: If ‘|&’ is used, the standard error of command1 is connected to
-    # command2’s standard input through the pipe; it is shorthand for 2>&1 |.
-    # This implicit redirection of the standard error is performed after any
-    # redirections specified by the command.
-    # Source: http://www.gnu.org/software/bash/manual/bash.html#Pipelines
-
-  else
-
-    # Assumption: the .git directory does not exist, so most likely hasn't been
-    # cloned as yet
+  # Assumption: the .git directory does not exist, so most likely hasn't been
+  # cloned as yet
+  if [ ! -e "${localdir}/.git" ]; then
     /usr/bin/git clone \
       "${remoterepo}" \
       "${localdir}" \
       |& info
-
-    # Clone any/all submodules as well
-    cd "${localdir}" \
-      && /usr/bin/git checkout "${GIT_BRANCH}" \
-      && /usr/bin/git submodule init \
-      && /usr/bin/git submodule update \
-      |& info
-
   fi
+
+  cd "${localdir}" \
+    && /usr/bin/git fetch --all \
+    && /usr/bin/git reset --hard "origin/${GIT_BRANCH}" \
+    && /usr/bin/git checkout --force "${GIT_BRANCH}" \
+    && /usr/bin/git submodule sync \
+    && /usr/bin/git submodule update --recursive \
+    |& info
 }
 
 
