@@ -1,21 +1,21 @@
-<user nick="<%= @title %>" password="<%= @nick_hashed_password %>" version="1">
+<user nick="<%= @nick %>" password="<%= @nick_hashed_password %>" version="1">
   <setting name="last_version">197121</setting>
   <setting name="save_on_quit">false</setting>
-  <% @accounts.each do |k, v| -%>
+  <% @accounts.each do |account| -%>
     <account
-      <% v['account_options'].each do |mk, mv| -%>
-        <%= mk %>="<%= mv %>"
+      <% account['account_options'].each do |option, value| -%>
+        <%= option %>="<%= value %>"
       <% end -%>
       >
-  <% v['settings'].each do |sk, sv| -%>
-    <setting name="<%= sk %>"><%= sv %></setting>
+  <% account['settings'].each do |setting, value| -%>
+    <setting name="<%= setting %>"><%= value %></setting>
   <% end -%>
   </account>
   <% end -%>
-  <% @channels.each do |k, v| -%>
-  <channel name="<%= v['name'] %>" type="<%= v['type'] %>">
-      <% v['settings'].each do |mk, mv| -%>
-    <setting name="<%= mk %>"><%= mv %></setting>
+  <% @channels.each do |channel| -%>
+  <channel name="<%= channel['name'] %>" type="<%= channel['type'] %>">
+      <% channel['settings'].each do |setting, value| -%>
+    <setting name="<%= setting %>"><%= value %></setting>
       <% end -%>
   </channel>
   <% end -%>
