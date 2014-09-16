@@ -5,7 +5,8 @@ PUBLIC_CONFDIR="<%= @public_confdir %>"
 DEPLOYMENT_KEY="<%= @deployment_private_key_loc %>"
 PUBLIC_REPO_URL="<%= @public_repo_url %>"
 PRIVATE_REPO_URL="<%= @private_repo_url %>"
-GIT_BRANCH="<%= @git_branch %>"
+PUBLIC_GIT_BRANCH="puppull-branch-argument"
+PRIVATE_GIT_BRANCH="test-canary-branch"
 myname=`basename "$0"`
 
 # pipefail is useful
@@ -26,6 +27,7 @@ error() {
 git_clone_update() {
   local localdir="$1"
   local remoterepo="$2"
+  local branch="$3"
 
   # Note: If ‘|&’ is used, the standard error of command1 is connected to
   # command2’s standard input through the pipe; it is shorthand for 2>&1 |.
@@ -53,8 +55,8 @@ git_clone_update() {
 
   cd "${localdir}" \
     && /usr/bin/git fetch --all \
-    && /usr/bin/git reset --hard "origin/${GIT_BRANCH}" \
-    && /usr/bin/git checkout --force "${GIT_BRANCH}" \
+    && /usr/bin/git reset --hard "origin/${branch}" \
+    && /usr/bin/git checkout --force "${branch}" \
     && /usr/bin/git submodule sync \
     && /usr/bin/git submodule update --recursive \
     |& info
@@ -84,15 +86,15 @@ echo $$ > ${LOCKFILE}
 export GIT_SSH='<%= @git_puppet_ssh_wrapper_loc %>'
 
 # Clone/update the private puppet repo
-git_clone_update "${PRIVATE_CONFDIR}" "${PRIVATE_REPO_URL}"
+git_clone_update "${PRIVATE_CONFDIR}" "${PRIVATE_REPO_URL}" "${PRIVATE_GIT_BRANCH}"
 if [ $? != 0 ]; then
-  error "Something went wrong when running command: git_clone_update ${PRIVATE_CONFDIR} ${PRIVATE_REPO_URL}"
+  error "Something went wrong when running command: git_clone_update ${PRIVATE_CONFDIR} ${PRIVATE_REPO_URL} ${PRIVATE_GIT_BRANCH}"
 fi
 
 # Clone/update the public puppet repo
-git_clone_update "${PUBLIC_CONFDIR}" "${PUBLIC_REPO_URL}"
+git_clone_update "${PUBLIC_CONFDIR}" "${PUBLIC_REPO_URL}" "${PUBLIC_GIT_BRANCH}"
 if [ $? != 0 ]; then
-  error "Something went wrong when running command: git_clone_update ${PUBLIC_CONFDIR} ${PUBLIC_REPO_URL}"
+  error "Something went wrong when running command: git_clone_update ${PUBLIC_CONFDIR} ${PUBLIC_REPO_URL} ${PUBLIC_GIT_BRANCH}"
 fi
 
 # Clean out the lockfile
