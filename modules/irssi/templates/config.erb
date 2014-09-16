@@ -1,44 +1,44 @@
 servers = (
-  <% @chatnets.each do |k, v| -%>
+  <% @chatnets.each do |chatnet| -%>
   {
-    address = "<%= v['address'] %>";
-    chatnet = "<%= k %>";
-    port = "<%= v['port'] %>";
-    use_ssl = "<%= v['use_ssl'] %>";
-    ssl_verify = "<%= v['ssl_verify'] %>";
-    autoconnect = "<%= v['autoconnect'] %>";
-    <% if v['ssl_capath'] -%>
-    ssl_capath = "<%= v['ssl_capath'] %>";
+    address = "<%= chatnet['address'] %>";
+    chatnet = "<%= chatnet['name'] %>";
+    port = "<%= chatnet['port'] %>";
+    use_ssl = "<%= chatnet['use_ssl'] %>";
+    ssl_verify = "<%= chatnet['ssl_verify'] %>";
+    autoconnect = "<%= chatnet['autoconnect'] %>";
+    <% if chatnet['ssl_capath'] -%>
+    ssl_capath = "<%= chatnet['ssl_capath'] %>";
     <% end -%>
-    <% if v['password'] -%>
-    password = "<%= v['password'] %>";
+    <% if chatnet['password'] -%>
+    password = "<%= chatnet['password'] %>";
     <% end -%>
   },
   <% end -%>
 );
 
 chatnets = {
-  <% @chatnets.each do |k, v| -%>
-  <%= k %> = {
-    type = "<%= v['type'] %>";
-    <% if v['nick'] %>
-    nick = "<%= v['nick'] %>";
+  <% @chatnets.each do |chatnet| -%>
+  <%= chatnet['name'] %> = {
+    type = "<%= chatnet['type'] %>";
+    <% if chatnet['nick'] %>
+    nick = "<%= chatnet['nick'] %>";
     <% end -%>
-    <% if v['username'] %>
-    username = "<%= v['username'] %>";
+    <% if chatnet['username'] %>
+    username = "<%= chatnet['username'] %>";
     <% end -%>
-    <% if v['realname'] %>
-    realname = "<%= v['realname'] %>";
+    <% if chatnet['realname'] %>
+    realname = "<%= chatnet['realname'] %>";
     <% end -%>
   };
   <% end -%>
 };
 
 channels = (
-  <% @channels.each do |k, v| -%>
+  <% @channels.each do |channel| -%>
     {
-  <% v.each do |mk, mv| -%>
-    <%= mk %> = "<%= mv %>";
+  <% channel.each do |setting, value| -%>
+    <%= setting %> = "<%= value %>";
   <% end -%>
     },
   <% end -%>
@@ -92,8 +92,8 @@ aliases = {
   ATAG = "WINDOW SERVER";
   UNSET = "set -clear";
   RESET = "set -default";
-  <% @aliases.each do |k, v| -%>
-  <%= k %> = "<%= v %>";
+  <% @aliases.each do |shortcut, command| -%>
+  <%= shortcut %> = "<%= command %>";
   <% end -%>
 };
 
@@ -277,55 +277,55 @@ settings = {
 };
 logs = { };
 windows = {
-  <% @windows.each do |k, v| -%>
-  <%= k %> = {
-    <% if v['immortal'] -%>
-    immortal = "<%= v['immortal'] %>";
+  <% @windows.each do |window_position, settings| -%>
+  <%= window_position %> = {
+    <% if settings['immortal'] -%>
+    immortal = "<%= settings['immortal'] %>";
     <% end -%>
-    name = "<%= v['name'] %>";
-    <% if v['level'] -%>
-    level = "<%= v['level'] %>";
+    name = "<%= settings['name'] %>";
+    <% if settings['level'] -%>
+    level = "<%= settings['level'] %>";
     <% end -%>
-    <% if v['sticky'] -%>
-    sticky = "<%= v['sticky'] %>";
+    <% if settings['sticky'] -%>
+    sticky = "<%= settings['sticky'] %>";
     <% end -%>
-    <% if v['parent'] -%>
-    parent = "<%= v['parent'] %>";
+    <% if settings['parent'] -%>
+    parent = "<%= settings['parent'] %>";
     <% end -%>
   };
   <% end -%>
 };
 hilights = (
-  <% @hilights.each do |k, v| -%>
+  <% @hilights.each do |hilight| -%>
   {
-  <% v.each do |mk, mv| -%>
-    <%= mk %> = "<%= mv %>";
+  <% hilight.each do |setting, value| -%>
+    <%= setting %> = "<%= value %>";
   <% end -%>
   },
   <% end -%>
 );
 ignores = (
-  <% @ignores.each do |k, v| -%>
+  <% @ignores.each do |ignore| -%>
   {
-  <% v.each do |mk, mv| -%>
-    <% if mk == "channels" -%>
-    <%= mk %> = <%= mv %>;
+  <% ignore.each do |setting, value| -%>
+    <% if setting == "channels" -%>
+    <%= setting %> = <%= value %>;
   <% else %>
-    <%= mk %> = "<%= mv %>";
+    <%= setting %> = "<%= value %>";
     <% end -%>
   <% end -%>
   },
   <% end -%>
 );
 notifies = {
-  <% @notifies.each do |k, v| -%>
-  <%= k %> =
+  <% @notifies.each do |mask, settings| -%>
+  <%= mask %> =
   {
-  <% v.each do |mk, mv| -%>
-    <% if mk == "ircnets" -%>
-    <%= mk %> = <%= mv %>;
+  <% settings.each do |setting, value| -%>
+    <% if setting == "ircnets" -%>
+    <%= setting %> = <%= value %>;
   <% else %>
-    <%= mk %> = "<%= mv %>";
+    <%= setting %> = "<%= value %>";
     <% end -%>
   <% end -%>
   };

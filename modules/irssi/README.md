@@ -83,13 +83,13 @@ Available settings:
 * `irssi_group` (string): Group used to run irssi
 * `settings` (hash): login credentials and log settings. See `im::instances -
   settings`
-* `chatnets` (hash): some interesting channels on different networks. See
+* `chatnets` (array): some interesting channels on different networks. See
   `im::instances - chatnets`
-* `channels` (hash): channels we care about on each network, autojoin settings.
+* `channels` (array): channels we care about on each network, autojoin settings.
   See `im::instances - channels`
-* `hilights` (hash): words/phrases that will trigger hilights, with their
+* `hilights` (array): words/phrases that will trigger hilights, with their
   corresponding activity color. See `im::instances - hilights`
-* `ignores` (hash): message types that should not be displayed in each channel. See
+* `ignores` (array): message types that should not be displayed in each channel. See
   `im::instances - ignores`
 * `notifies` (hash): people whose coming online should notify us. See
   `im::instances - notifies`
@@ -123,10 +123,11 @@ Valid entries are:
 im::instances - chatnets
 ------------------
 
-Keys are chat network names.
-Values are hashes to configure that chat network.
+Elements are hashes to configure that chat network.
 Configurable settings are:
 
+* `name` (string): chat network name, used in other settings such as
+  `channels`, below.
 * `address` (string): domain, eg `irc.freenode.net`
 * `port` (string): remote port. Eg, `7000` on freenode is for SSL only
 * `use_ssl` (boolean)
@@ -139,8 +140,7 @@ Configurable settings are:
 * `nick` (string): overrides nick from `im::instances - settings`
 * `username` (string): overrides username from `im::instances - settings`
 * `realname` (string): overrides realname from `im::instances - settings`
-* `sasl_auth` (string): An array of single-element key-values for authenticating with
-  NickServ (let's fix this so it's a hash) XXX
+* `sasl_auth` (hash): settings for authenticating with nickserv. Available keys:
     * `username` (string)
     * `passwond` (string)
     * `type` (string): type of auth. Eg, freenode supports 'DH-BLOWFISH' or PLAIN'
@@ -148,13 +148,12 @@ Configurable settings are:
 im::instances - channels
 ------------------
 
-Keys are only used to document.
-Values are hashes to configure each chat network.
+Elements are hashes to configure each chat network.
 Available configuration settings are:
 
 * `name` (string): name of the channel to join
-* `chatnet` (string): which network it's on. Corresponds to a key in
-  `im::instances - chatnets`.
+* `chatnet` (string): which network it's on. Corresponds the name of an
+  entry in `im::instances - chatnets`.
 * `autojoin` (boolean): whether to automatically join this room or not.
 * `password` (string)
 * `botmasks` (string)
@@ -162,8 +161,7 @@ Available configuration settings are:
 im::instances - hilights
 ------------------
 
-Keys are only used to document.
-Values are hashes configuring terms to trigger highlighting.
+Elements are hashes configuring terms to trigger highlighting.
 Available configuration settings are:
 
 * `text` (string): a string that will trigger hilights
@@ -183,8 +181,7 @@ See section 9 of [the irssi manual](http://www.irssi.org/documentation/manual)
 im::instances - ignores
 -----------------
 
-Keys are only used to document.
-Values are hashing configuring the message types that should be ignored in which
+Elements are hashing configuring the message types that should be ignored in which
 channel.
 Valid configurations are:
 

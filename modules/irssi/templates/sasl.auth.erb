@@ -1,5 +1,5 @@
-<% @chatnets.each do |k, v| -%>
-<% if v['sasl_auth'] -%>
-<%= k %>	<%= v['sasl_auth'][0]['username'] %>	<%= v['sasl_auth'][1]['password'] %>	<%= v['sasl_auth'][2]['type'] %>
+<% @chatnets.each do |chatnet| -%>
+<% if chatnet['sasl_auth'] -%>
+<%= chatnet['name'] %>	<%= chatnet['sasl_auth']['username'] %>	<%= chatnet['sasl_auth']['password'] %>	<%= chatnet['sasl_auth']['type'] %>
 <% end -%>
 <% end -%>
