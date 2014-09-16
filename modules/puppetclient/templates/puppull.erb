@@ -15,8 +15,9 @@ set -o pipefail
 info() {
   # This allows us to use this bash function as a pipe destination which makes
   # logging slightly easier
-  read INPUT
-  /usr/bin/logger --id --priority local3.info --tag ${myname} "INFO: $INPUT"
+  while read INPUT; do
+    /usr/bin/logger --id --priority local3.info --tag ${myname} "INFO: $INPUT"
+  done
 }
 
 error() {
@@ -47,22 +48,30 @@ git_clone_update() {
     # Note that PIPESTATUS[0] stores the exit code of the first command in the
     # (piped) chain since we 'set -o pipefail' earlier.
     retval=${PIPESTATUS[0]}
-
-    if [ $retval != 0 ]; then
-      return $retval
-    fi
+    if [ $retval != 0 ]; then return $retval; fi
   fi
 
-  cd "${localdir}" \
-    && /usr/bin/git fetch --all \
-    && /usr/bin/git reset --hard "origin/${branch}" \
-    && /usr/bin/git checkout --force "${branch}" \
-    && /usr/bin/git submodule sync \
-    && /usr/bin/git submodule update --recursive \
-    |& info
-
+  cd "${localdir}" && /usr/bin/git fetch --all |& info
   retval=${PIPESTATUS[0]}
-  return $retval
+  if [ $retval != 0 ]; then return $retval; fi
+
+  cd "${localdir}" && /usr/bin/git reset --hard "origin/${branch}" |& info
+  retval=${PIPESTATUS[0]}
+  if [ $retval != 0 ]; then return $retval; fi
+
+  cd "${localdir}" && /usr/bin/git checkout --force "${branch}" |& info
+  retval=${PIPESTATUS[0]}
+  if [ $retval != 0 ]; then return $retval; fi
+
+  cd "${localdir}" && /usr/bin/git submodule sync |& info
+  retval=${PIPESTATUS[0]}
+  if [ $retval != 0 ]; then return $retval; fi
+
+  cd "${localdir}" && /usr/bin/git submodule update --recursive |& info
+  retval=${PIPESTATUS[0]}
+  if [ $retval != 0 ]; then return $retval; fi
+
+  return 0
 }
 
 
