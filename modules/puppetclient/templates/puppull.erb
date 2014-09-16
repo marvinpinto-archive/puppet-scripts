@@ -9,6 +9,10 @@ PUBLIC_GIT_BRANCH="puppull-branch-argument"
 PRIVATE_GIT_BRANCH="test-canary-branch"
 myname=`basename "$0"`
 
+# Determine if this script is running interactively or not
+/usr/bin/tty -s
+INTERACTIVE=$?
+
 # pipefail is useful
 set -o pipefail
 
@@ -17,6 +21,9 @@ info() {
   # logging slightly easier
   while read INPUT; do
     /usr/bin/logger --id --priority local3.info --tag ${myname} "INFO: $INPUT"
+    if [ "$INTERACTIVE" -eq 0 ]; then
+      echo "INFO: $INPUT"
+    fi
   done
 }
 
