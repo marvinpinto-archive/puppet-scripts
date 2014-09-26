@@ -54,6 +54,7 @@ git_clone_update() {
   # cloned as yet
   if [ ! -e "${localdir}/.git" ]; then
     /usr/bin/git clone \
+      -- recursive \
       "${remoterepo}" \
       "${localdir}" \
       |& info
