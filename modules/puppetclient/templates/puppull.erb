@@ -5,8 +5,8 @@ PUBLIC_CONFDIR="<%= @public_confdir %>"
 DEPLOYMENT_KEY="<%= @deployment_private_key_loc %>"
 PUBLIC_REPO_URL="<%= @public_repo_url %>"
 PRIVATE_REPO_URL="<%= @private_repo_url %>"
-PUBLIC_GIT_BRANCH="puppull-branch-argument"
-PRIVATE_GIT_BRANCH="test-canary-branch"
+PUBLIC_GIT_BRANCH="master"
+PRIVATE_GIT_BRANCH="master"
 myname=`basename "$0"`
 
 # Determine if this script is running interactively or not
@@ -29,6 +29,13 @@ info() {
 
 error() {
   /usr/bin/logger --id --stderr --priority local3.err --tag ${myname} "ERROR: $@"
+  exit 1
+}
+
+usage() {
+  echo "usage: ${myname} [-r branch_name] [-u branch_name]"
+  echo "  -r branch_name: Override 'master' on the PRIVATE branch with this value"
+  echo "  -u branch_name: Override 'master' on the PUBLIC branch with this value"
   exit 1
 }
 
@@ -85,6 +92,33 @@ git_clone_update() {
 # Need to be root
 if [ `id -u -n` != "root" ]; then
   error "Must run as root, not" `id -u -n`
+fi
+
+# Attempt to get the public and private branch names from the command line, if
+supplied
+while getopts :r:u: name
+do
+  case $name in
+  r) # private repo branch specified on the command line
+    r_opt=$OPTARG
+    ;;
+  u) # public repo branch specified on the command line
+    u_opt=$OPTARG
+    ;;
+  *) # something other than what we expect was supplied
+    usage
+    ;;
+  esac
+done
+
+# Override $PRIVATE_GIT_BRANCH, if specified
+if [[ ! -z $r_opt ]]; then
+  PRIVATE_GIT_BRANCH=$r_opt
+fi
+
+# Override $PUBLIC_GIT_BRANCH, if specified
+if [[ ! -z $u_opt ]]; then
+  PUBLIC_GIT_BRANCH=$u_opt
 fi
 
 LOCKFILE=/tmp/puppulllock.txt
