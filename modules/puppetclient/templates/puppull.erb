@@ -5,71 +5,125 @@ PUBLIC_CONFDIR="<%= @public_confdir %>"
 DEPLOYMENT_KEY="<%= @deployment_private_key_loc %>"
 PUBLIC_REPO_URL="<%= @public_repo_url %>"
 PRIVATE_REPO_URL="<%= @private_repo_url %>"
-GIT_BRANCH="<%= @git_branch %>"
+PUBLIC_GIT_BRANCH="master"
+PRIVATE_GIT_BRANCH="master"
 myname=`basename "$0"`
 
-fyi() {
-  echo "$myname: FYI:" "$@"
+# Determine if this script is running interactively or not
+/usr/bin/tty -s
+INTERACTIVE=$?
+
+# pipefail is useful
+set -o pipefail
+
+info() {
+  # This allows us to use this bash function as a pipe destination which makes
+  # logging slightly easier
+  while read INPUT; do
+    /usr/bin/logger --id --priority local3.info --tag ${myname} "INFO: $INPUT"
+    if [ "$INTERACTIVE" -eq 0 ]; then
+      echo "INFO: $INPUT"
+    fi
+  done
 }
 
 error() {
-  echo 1>&2 "$myname:" "$@"
-}
-
-fatal() {
-  error "$@"
+  /usr/bin/logger --id --stderr --priority local3.err --tag ${myname} "ERROR: $@"
   exit 1
 }
 
 usage() {
-  fatal "usage: $myname"
+  echo "usage: ${myname} [-r branch_name] [-u branch_name]"
+  echo "  -r branch_name: Override 'master' on the PRIVATE branch with this value"
+  echo "  -u branch_name: Override 'master' on the PUBLIC branch with this value"
+  exit 1
 }
-
 
 git_clone_update() {
   local localdir="$1"
   local remoterepo="$2"
+  local branch="$3"
 
-  # Clone/update the private puppet repo
-  if [ -e "${localdir}/.git" ]; then
+  # Note: If ‘|&’ is used, the standard error of command1 is connected to
+  # command2’s standard input through the pipe; it is shorthand for 2>&1 |.
+  # This implicit redirection of the standard error is performed after any
+  # redirections specified by the command.
+  # Source: http://www.gnu.org/software/bash/manual/bash.html#Pipelines
 
-    # Assumption here is that if the .git directory exists, the clone step as
-    # already been completed
-    cd "${localdir}" \
-      && /usr/bin/git fetch origin \
-      && /usr/bin/git reset --hard "origin/${GIT_BRANCH}" \
-      && /usr/bin/git checkout "${GIT_BRANCH}" \
-      && /usr/bin/git submodule init \
-      && /usr/bin/git submodule update
-
-  else
-
-    # Assumption: the .git directory does not exist, so most likely hasn't been
-    # cloned as yet
+  # Assumption: the .git directory does not exist, so most likely hasn't been
+  # cloned as yet
+  if [ ! -e "${localdir}/.git" ]; then
     /usr/bin/git clone \
       "${remoterepo}" \
-      "${localdir}"
+      "${localdir}" \
+      |& info
 
-    # Clone any/all submodules as well
-    cd "${localdir}" \
-      && /usr/bin/git checkout "${GIT_BRANCH}" \
-      && /usr/bin/git submodule init \
-      && /usr/bin/git submodule update
-
+    # What we really care about here is the return status of the first command.
+    # Note that PIPESTATUS[0] stores the exit code of the first command in the
+    # (piped) chain since we 'set -o pipefail' earlier.
+    retval=${PIPESTATUS[0]}
+    if [ $retval != 0 ]; then return $retval; fi
   fi
+
+  cd "${localdir}" && /usr/bin/git fetch --all |& info
+  retval=${PIPESTATUS[0]}
+  if [ $retval != 0 ]; then return $retval; fi
+
+  cd "${localdir}" && /usr/bin/git reset --hard "origin/${branch}" |& info
+  retval=${PIPESTATUS[0]}
+  if [ $retval != 0 ]; then return $retval; fi
+
+  cd "${localdir}" && /usr/bin/git checkout --force "${branch}" |& info
+  retval=${PIPESTATUS[0]}
+  if [ $retval != 0 ]; then return $retval; fi
+
+  cd "${localdir}" && /usr/bin/git submodule sync |& info
+  retval=${PIPESTATUS[0]}
+  if [ $retval != 0 ]; then return $retval; fi
+
+  cd "${localdir}" && /usr/bin/git submodule update --recursive |& info
+  retval=${PIPESTATUS[0]}
+  if [ $retval != 0 ]; then return $retval; fi
+
+  return 0
 }
 
 
 # Need to be root
 if [ `id -u -n` != "root" ]; then
-    echo "must run as root, not" `id -u -n`
-    exit
+  error "Must run as root, not" `id -u -n`
+fi
+
+# Attempt to get the public and private branch names from the command line, if
+supplied
+while getopts :r:u: name
+do
+  case $name in
+  r) # private repo branch specified on the command line
+    r_opt=$OPTARG
+    ;;
+  u) # public repo branch specified on the command line
+    u_opt=$OPTARG
+    ;;
+  *) # something other than what we expect was supplied
+    usage
+    ;;
+  esac
+done
+
+# Override $PRIVATE_GIT_BRANCH, if specified
+if [[ ! -z $r_opt ]]; then
+  PRIVATE_GIT_BRANCH=$r_opt
+fi
+
+# Override $PUBLIC_GIT_BRANCH, if specified
+if [[ ! -z $u_opt ]]; then
+  PUBLIC_GIT_BRANCH=$u_opt
 fi
 
 LOCKFILE=/tmp/puppulllock.txt
 if [ -e ${LOCKFILE} ] && kill -0 `cat ${LOCKFILE}`; then
-    echo "puppull already running"
-    exit
+  error "puppull is already running"
 fi
 
 # make sure the lockfile is removed when we exit and then claim it
@@ -81,9 +135,17 @@ echo $$ > ${LOCKFILE}
 # Needed in order to specify a private key
 export GIT_SSH='<%= @git_puppet_ssh_wrapper_loc %>'
 
-# Clone/update the private & public puppet repos
-git_clone_update "${PRIVATE_CONFDIR}" "${PRIVATE_REPO_URL}"
-git_clone_update "${PUBLIC_CONFDIR}" "${PUBLIC_REPO_URL}"
+# Clone/update the private puppet repo
+git_clone_update "${PRIVATE_CONFDIR}" "${PRIVATE_REPO_URL}" "${PRIVATE_GIT_BRANCH}"
+if [ $? != 0 ]; then
+  error "Something went wrong when running command: git_clone_update ${PRIVATE_CONFDIR} ${PRIVATE_REPO_URL} ${PRIVATE_GIT_BRANCH}"
+fi
+
+# Clone/update the public puppet repo
+git_clone_update "${PUBLIC_CONFDIR}" "${PUBLIC_REPO_URL}" "${PUBLIC_GIT_BRANCH}"
+if [ $? != 0 ]; then
+  error "Something went wrong when running command: git_clone_update ${PUBLIC_CONFDIR} ${PUBLIC_REPO_URL} ${PUBLIC_GIT_BRANCH}"
+fi
 
 # Clean out the lockfile
 rm -f ${LOCKFILE}
