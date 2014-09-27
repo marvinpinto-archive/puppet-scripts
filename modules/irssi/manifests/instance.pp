@@ -30,10 +30,10 @@ define irssi::instance (
 
   # irssi directory for chat logs
   file { $instance_logdir:
-    ensure  => directory,
-    owner   => $irssi_user,
-    group   => $irssi_group,
-    mode    => '0700',
+    ensure => directory,
+    owner  => $irssi_user,
+    group  => $irssi_group,
+    mode   => '0700',
   }
 
   # irssi scripts directory
