@@ -1,7 +1,6 @@
 class utils::cleanup {
 
   $bad_pkgs = [
-    'bind9',
     'hddtemp',
     'mdadm',
     'smartmontools',
