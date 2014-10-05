@@ -54,7 +54,7 @@ git_clone_update() {
   # cloned as yet
   if [ ! -e "${localdir}/.git" ]; then
     /usr/bin/git clone \
-      -- recursive \
+      --recursive \
       "${remoterepo}" \
       "${localdir}" \
       |& info
@@ -75,6 +75,10 @@ git_clone_update() {
   if [ $retval != 0 ]; then return $retval; fi
 
   cd "${localdir}" && /usr/bin/git checkout --force "${branch}" |& info
+  retval=${PIPESTATUS[0]}
+  if [ $retval != 0 ]; then return $retval; fi
+
+  cd "${localdir}" && /usr/bin/git submodule init |& info
   retval=${PIPESTATUS[0]}
   if [ $retval != 0 ]; then return $retval; fi
 
