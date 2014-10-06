@@ -26,6 +26,8 @@ PuppetLint.configuration.ignore_paths = [
   "modules/timezone/**/*.pp",
   "modules/supervisor/**/*.pp",
   "modules/firewall/**/*.pp",
+  "modules/dns/**/*.pp",
+  "modules/concat/**/*.pp",
 ]
 
 # Disable the documentation check, for now
