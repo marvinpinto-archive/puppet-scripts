@@ -8,7 +8,6 @@ class utils::cleanup {
     'apparmor',
     'apparmor-utils',
     'libapparmor-perl',
-    'libapparmor1',
   ]
 
   package { $bad_pkgs:
