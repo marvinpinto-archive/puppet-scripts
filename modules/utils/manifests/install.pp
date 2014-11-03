@@ -12,7 +12,6 @@ class utils::install {
     'dos2unix',
     'vim',
     'tree',
-    'unzip',
   ]
 
   package { $util_pkgs:
