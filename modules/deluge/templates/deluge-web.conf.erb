@@ -16,5 +16,4 @@ env uid=deluge
 env gid=<%= @media_group %>
 env umask=002
 
-# exec start-stop-daemon -S -c $uid:$gid -k $umask -x /usr/bin/deluge-web -- -l /dev/log -L info
 exec start-stop-daemon -S -c $uid:$gid -k $umask -x /usr/bin/deluge-web -- --base=<%= @web_base %>
