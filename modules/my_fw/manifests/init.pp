@@ -1,5 +1,8 @@
 class my_fw {
 
+  # iptables-persistent gets installed from the 'ubuntu universe' repo
+  Apt::Source['ubuntu_universe'] -> Package['iptables-persistent']
+
   # Explicitly specify resource ordering
   Firewall {
     before  => Class['my_fw::post'],

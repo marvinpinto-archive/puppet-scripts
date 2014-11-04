@@ -3,7 +3,8 @@ class unzip (
 ) {
 
   package { 'unzip':
-    ensure => $version,
+    ensure  => $version,
+    require => Apt::Source['ubuntu_main_restricted'],
   }
 
 }

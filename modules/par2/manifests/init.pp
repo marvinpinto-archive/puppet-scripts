@@ -3,7 +3,8 @@ class par2 (
 ) {
 
   package { 'par2':
-    ensure => $version,
+    ensure  => $version,
+    require => Apt::Source['ubuntu_universe'],
   }
 
 }
