@@ -33,4 +33,20 @@ class deluge::config (
     content => template('deluge/core.conf.erb'),
   }
 
+  file { '/var/lib/deluge/.config/deluge/auth':
+    ensure => file,
+    mode   => '0600',
+    owner  => 'deluge',
+    group  => $media_group,
+    source => 'puppet:///modules/deluge/auth',
+  }
+
+  file { '/var/lib/deluge/.config/deluge/execute.conf':
+    ensure => file,
+    mode   => '0664',
+    owner  => 'deluge',
+    group  => $media_group,
+    source => 'puppet:///modules/deluge/execute.conf',
+  }
+
 }

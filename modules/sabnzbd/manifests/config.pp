@@ -4,9 +4,13 @@ class sabnzbd::config (
   $newsgroups_hostname,
   $newsgroups_username,
   $newsgroups_password,
+  $couchpotato_input_directory,
+  $nzb_post_processing_directory,
+  $unprocessed_downloads_prefix,
+  $processed_downloads_prefix,
 ) {
 
-  require 'sabnzbd::user'
+  require 'sabnzbd::package'
 
   file { '/var/lib/sabnzbd/sabnzbd.ini':
     ensure  => file,
