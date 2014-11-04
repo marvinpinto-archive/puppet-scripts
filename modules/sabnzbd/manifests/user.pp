@@ -2,8 +2,6 @@ class sabnzbd::user (
   $media_group,
 ) {
 
-  require 'sabnzbd::package'
-
   group { 'sabnzbd':
     ensure => present,
     system => true;
