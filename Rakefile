@@ -28,6 +28,7 @@ PuppetLint.configuration.ignore_paths = [
   "modules/firewall/**/*.pp",
   "modules/dns/**/*.pp",
   "modules/concat/**/*.pp",
+  "modules/vcsrepo/**/*.pp",
 ]
 
 # Disable the documentation check, for now
