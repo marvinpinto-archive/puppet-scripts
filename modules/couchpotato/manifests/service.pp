@@ -21,4 +21,12 @@ class couchpotato::service {
     command    => shellquote($supervisor_cmd),
   }
 
+  exec { 'load-couchpotato-profiles':
+    command     => '/var/lib/couchpotato/load_profiles.py',
+    logoutput   => on_failure,
+    require     => Supervisor::Service['couchpotato'],
+    subscribe   => Class['couchpotato::config'],
+    refreshonly => true,
+  }
+
 }

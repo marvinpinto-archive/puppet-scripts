@@ -5,6 +5,7 @@ class couchpotato::config (
   $movies_directory,
   $bt_autoprocess_output_dir,
   $usenet_crawler_api_key,
+  $cp_api_key,
 ) {
 
   require 'couchpotato::package'
@@ -15,6 +16,14 @@ class couchpotato::config (
     owner   => 'couchpotato',
     group   => 'couchpotato',
     content => template('couchpotato/settings.conf.erb'),
+  }
+
+  file { '/var/lib/couchpotato/load_profiles.py':
+    ensure  => file,
+    mode    => '0755',
+    owner   => 'couchpotato',
+    group   => 'couchpotato',
+    content => template('couchpotato/load_profiles.py.erb'),
   }
 
 }

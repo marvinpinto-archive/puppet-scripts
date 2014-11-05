@@ -1,0 +1,264 @@
+#!/usr/bin/python
+
+# This ugly little thing takes care of setting all the config options that are
+# set directly in the database.
+
+import requests
+import json
+
+cp_url = "http://localhost:<%= @web_port %>/couchpotato/api/<%= @cp_api_key %>"
+hd_profile_name = 'Marvin-HD'
+sd_profile_name = 'Marvin-SD'
+
+def add_hd_profile():
+    # Create the default HD profile
+    hd_profile = {
+            'label': hd_profile_name,
+            'wait_for': 0,
+            'stop_after': 0,
+            'minimum_score': 1,
+            'types[0][quality]': '720p',
+            'types[0][finish]': 1,
+            'types[0][3d]': 0,
+            'types[1][quality]': '1080p',
+            'types[1][finish]': 1,
+            'types[1][3d]': 0,
+            }
+    r = requests.get(cp_url + '/profile.save/', params=hd_profile)
+    json_object = r.json()
+    return json_object['profile']['_id']
+
+def add_sd_profile():
+    # Create the default SD profile
+    sd_profile = {
+            'label': sd_profile_name,
+            'wait_for': 0,
+            'stop_after': 0,
+            'minimum_score': 1,
+            'types[0][quality]': 'dvdrip',
+            'types[0][finish]': 1,
+            'types[0][3d]': 0,
+            'types[1][quality]': 'dvdr',
+            'types[1][finish]': 1,
+            'types[0][3d]': 0,
+            }
+    r = requests.get(cp_url + '/profile.save/', params=sd_profile)
+    json_object = r.json()
+    return json_object['profile']['_id']
+
+def delete_profile(profileid):
+    delete_profile = { 'id': profileid }
+    r = requests.get(cp_url + '/profile.delete/', params=delete_profile)
+    print r.json()
+
+# First go through and delete our custom profiles, if present
+r = requests.get(cp_url + '/profile.list/')
+json_object = r.json()
+for items in json_object['list']:
+    if items['label'] == hd_profile_name:
+        delete_profile(items['_id'])
+    if items['label'] == sd_profile_name:
+        delete_profile(items['_id'])
+
+# Get a hold of the current profiles in the list
+req_list = requests.get(cp_url + '/profile.list/')
+
+# Add our HD profile
+hd_profile_id = add_hd_profile()
+save_order = {
+        'ids[0]': hd_profile_id,
+        'hidden[0]': 0,
+        }
+
+# Add our SD profile
+sd_profile_id = add_sd_profile()
+save_order['ids[1]'] = sd_profile_id
+save_order['hidden[1]'] = 0
+
+# Start building a dictionary of all the profile IDs. I realize this isn't the
+# most efficient/elegant way of building this dict, but it'll have to do for
+# now.
+json_object = req_list.json()
+for index, item in enumerate(json_object['list'], start=2):
+    save_order["ids[%s]" % index] = item['_id']
+    save_order["hidden[%s]" % index] = 1
+
+# Update the profile order on couchpotato
+r = requests.get(cp_url + '/profile.save_order/', params=save_order)
+print r.json()
+
+# Set the min & max size for the 'cam' identifier
+v = {
+    'identifier': 'cam',
+    'value_type': 'size_min',
+    'value': 600,
+    }
+r = requests.get(cp_url + '/quality.size.save/', params=v)
+print r.json()
+v = {
+    'identifier': 'cam',
+    'value_type': 'size_max',
+    'value': 1000,
+    }
+r = requests.get(cp_url + '/quality.size.save/', params=v)
+print r.json()
+
+# Set the min & max size for the 'ts' identifier
+v = {
+    'identifier': 'ts',
+    'value_type': 'size_min',
+    'value': 600,
+    }
+r = requests.get(cp_url + '/quality.size.save/', params=v)
+print r.json()
+v = {
+    'identifier': 'ts',
+    'value_type': 'size_max',
+    'value': 1000,
+    }
+r = requests.get(cp_url + '/quality.size.save/', params=v)
+print r.json()
+
+# Set the min & max size for the 'tc' identifier
+v = {
+    'identifier': 'tc',
+    'value_type': 'size_min',
+    'value': 600,
+    }
+r = requests.get(cp_url + '/quality.size.save/', params=v)
+print r.json()
+v = {
+    'identifier': 'tc',
+    'value_type': 'size_max',
+    'value': 1000,
+    }
+r = requests.get(cp_url + '/quality.size.save/', params=v)
+print r.json()
+
+# Set the min & max size for the 'r5' identifier
+v = {
+    'identifier': 'r5',
+    'value_type': 'size_min',
+    'value': 600,
+    }
+r = requests.get(cp_url + '/quality.size.save/', params=v)
+print r.json()
+v = {
+    'identifier': 'r5',
+    'value_type': 'size_max',
+    'value': 1000,
+    }
+r = requests.get(cp_url + '/quality.size.save/', params=v)
+print r.json()
+
+# Set the min & max size for the 'scr' identifier
+v = {
+    'identifier': 'scr',
+    'value_type': 'size_min',
+    'value': 600,
+    }
+r = requests.get(cp_url + '/quality.size.save/', params=v)
+print r.json()
+v = {
+    'identifier': 'scr',
+    'value_type': 'size_max',
+    'value': 1600,
+    }
+r = requests.get(cp_url + '/quality.size.save/', params=v)
+print r.json()
+
+# Set the min & max size for the 'dvdrip' identifier
+v = {
+    'identifier': 'dvdrip',
+    'value_type': 'size_min',
+    'value': 600,
+    }
+r = requests.get(cp_url + '/quality.size.save/', params=v)
+print r.json()
+v = {
+    'identifier': 'dvdrip',
+    'value_type': 'size_max',
+    'value': 2400,
+    }
+r = requests.get(cp_url + '/quality.size.save/', params=v)
+print r.json()
+
+# Set the min & max size for the 'dvdr' identifier
+v = {
+    'identifier': 'dvdr',
+    'value_type': 'size_min',
+    'value': 3000,
+    }
+r = requests.get(cp_url + '/quality.size.save/', params=v)
+print r.json()
+v = {
+    'identifier': 'dvdr',
+    'value_type': 'size_max',
+    'value': 10000,
+    }
+r = requests.get(cp_url + '/quality.size.save/', params=v)
+print r.json()
+
+# Set the min & max size for the 'brrip' identifier
+v = {
+    'identifier': 'brrip',
+    'value_type': 'size_min',
+    'value': 700,
+    }
+r = requests.get(cp_url + '/quality.size.save/', params=v)
+print r.json()
+v = {
+    'identifier': 'brrip',
+    'value_type': 'size_max',
+    'value': 7000,
+    }
+r = requests.get(cp_url + '/quality.size.save/', params=v)
+print r.json()
+
+# Set the min & max size for the '720p' identifier
+v = {
+    'identifier': '720p',
+    'value_type': 'size_min',
+    'value': 3000,
+    }
+r = requests.get(cp_url + '/quality.size.save/', params=v)
+print r.json()
+v = {
+    'identifier': '720p',
+    'value_type': 'size_max',
+    'value': 10000,
+    }
+r = requests.get(cp_url + '/quality.size.save/', params=v)
+print r.json()
+
+# Set the min & max size for the '1080p' identifier
+v = {
+    'identifier': '1080p',
+    'value_type': 'size_min',
+    'value': 4000,
+    }
+r = requests.get(cp_url + '/quality.size.save/', params=v)
+print r.json()
+v = {
+    'identifier': '1080p',
+    'value_type': 'size_max',
+    'value': 20000,
+    }
+r = requests.get(cp_url + '/quality.size.save/', params=v)
+print r.json()
+
+# Set the min & max size for the 'bd50' identifier
+v = {
+    'identifier': 'bd50',
+    'value_type': 'size_min',
+    'value': 20000,
+    }
+r = requests.get(cp_url + '/quality.size.save/', params=v)
+print r.json()
+v = {
+    'identifier': 'bd50',
+    'value_type': 'size_max',
+    'value': 60000,
+    }
+r = requests.get(cp_url + '/quality.size.save/', params=v)
+print r.json()
