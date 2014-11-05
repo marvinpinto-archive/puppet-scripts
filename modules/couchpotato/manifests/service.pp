@@ -1,5 +1,8 @@
 class couchpotato::service {
 
+  # Supervisor gets installed from the 'ubuntu universe' repo
+  Apt::Source['ubuntu_universe'] -> Package['supervisor']
+
   require 'couchpotato::config'
 
   $supervisor_cmd = [

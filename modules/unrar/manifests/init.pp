@@ -3,7 +3,8 @@ class unrar (
 ) {
 
   package { 'unrar':
-    ensure => $version,
+    ensure  => $version,
+    require => Apt::Source['ubuntu_multiverse'],
   }
 
 }

@@ -8,6 +8,7 @@ class sabnzbd::config (
   $nzb_post_processing_directory,
   $unprocessed_downloads_prefix,
   $processed_downloads_prefix,
+  $tv_directory,
 ) {
 
   require 'sabnzbd::package'

@@ -1,8 +1,8 @@
 class sabnzbd::package {
 
-  require 'unrar'
-  require 'unzip'
-  require 'par2'
+  include 'unrar'
+  include 'unzip'
+  include 'par2'
   require 'sabnzbd::user'
 
   # Add the sabnzbd PPA

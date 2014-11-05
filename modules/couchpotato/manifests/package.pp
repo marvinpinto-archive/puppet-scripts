@@ -15,6 +15,7 @@ class couchpotato::package {
     source   => 'https://github.com/RuudBurger/CouchPotatoServer.git',
     user     => 'couchpotato',
     require  => File['/opt/couchpotato'],
+    notify   => Supervisor::Service['couchpotato'],
   }
 
 }
