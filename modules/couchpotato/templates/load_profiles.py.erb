@@ -178,7 +178,7 @@ print r.json()
 v = {
     'identifier': 'dvdrip',
     'value_type': 'size_max',
-    'value': 2400,
+    'value': 1000,
     }
 r = requests.get(cp_url + '/quality.size.save/', params=v)
 print r.json()
@@ -187,14 +187,14 @@ print r.json()
 v = {
     'identifier': 'dvdr',
     'value_type': 'size_min',
-    'value': 3000,
+    'value': 600,
     }
 r = requests.get(cp_url + '/quality.size.save/', params=v)
 print r.json()
 v = {
     'identifier': 'dvdr',
     'value_type': 'size_max',
-    'value': 10000,
+    'value': 1500,
     }
 r = requests.get(cp_url + '/quality.size.save/', params=v)
 print r.json()
@@ -219,14 +219,14 @@ print r.json()
 v = {
     'identifier': '720p',
     'value_type': 'size_min',
-    'value': 3000,
+    'value': 750,
     }
 r = requests.get(cp_url + '/quality.size.save/', params=v)
 print r.json()
 v = {
     'identifier': '720p',
     'value_type': 'size_max',
-    'value': 10000,
+    'value': 1499,
     }
 r = requests.get(cp_url + '/quality.size.save/', params=v)
 print r.json()
@@ -235,14 +235,14 @@ print r.json()
 v = {
     'identifier': '1080p',
     'value_type': 'size_min',
-    'value': 4000,
+    'value': 1500,
     }
 r = requests.get(cp_url + '/quality.size.save/', params=v)
 print r.json()
 v = {
     'identifier': '1080p',
     'value_type': 'size_max',
-    'value': 20000,
+    'value': 5000,
     }
 r = requests.get(cp_url + '/quality.size.save/', params=v)
 print r.json()
