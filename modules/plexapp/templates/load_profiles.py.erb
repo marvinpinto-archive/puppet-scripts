@@ -1,0 +1,73 @@
+#!/usr/bin/python
+
+# This ugly little thing takes care of setting all the config options that are
+# set directly in the database.
+
+import requests
+from xml.etree import ElementTree
+
+plex_url = "http://127.0.0.1:32400"
+
+def delete_all_libraries():
+    r = requests.get(plex_url + '/library/sections')
+    tree = ElementTree.fromstring(r.content)
+    for child in tree:
+        my_url = "%s/library/sections/%s" % (plex_url, child.attrib['key'])
+        r = requests.delete(my_url)
+        print r
+        if r.status_code != 200:
+            print "Did not get the expected 200 response"
+            exit(1)
+
+def add_movie_library():
+    # Set the movies folder location
+    payload = {
+            'type': 'movie',
+            'agent': 'com.plexapp.agents.imdb',
+            'scanner': 'Plex Movie Scanner',
+            'language': 'en',
+            'name': 'Movies',
+            'location': '<%= @movies_directory %>',
+            }
+    r = requests.post('%s/library/sections' % plex_url, params=payload)
+    print r
+    if r.status_code != 201:
+        print "Did not get the expected 201 response"
+        exit(1)
+
+def add_tv_library():
+    # Set the tv folder location
+    payload = {
+            'type': 'show',
+            'agent': 'com.plexapp.agents.thetvdb',
+            'scanner': 'Plex Series Scanner',
+            'language': 'en',
+            'name': 'TV Shows',
+            'location': '<%= @tv_directory %>',
+            }
+    r = requests.post('%s/library/sections' % plex_url, params=payload)
+    print r
+    if r.status_code != 201:
+        print "Did not get the expected 201 response"
+        exit(1)
+
+def add_music_library():
+    # Set the music folder location
+    payload = {
+            'type': 'artist',
+            'agent': 'com.plexapp.agents.lastfm',
+            'scanner': 'Plex Music Scanner',
+            'language': 'en',
+            'name': 'Music',
+            'location': '<%= @music_directory %>',
+            }
+    r = requests.post('%s/library/sections' % plex_url, params=payload)
+    print r
+    if r.status_code != 201:
+        print "Did not get the expected 201 response"
+        exit(1)
+
+delete_all_libraries()
+add_movie_library()
+add_tv_library()
+add_music_library()
