@@ -21,12 +21,4 @@ class sabnzbd::config (
     content => template('sabnzbd/sabnzbd.ini.erb'),
   }
 
-  file { '/etc/default/sabnzbdplus':
-    ensure  => file,
-    mode    => '0644',
-    owner   => 'root',
-    group   => 'root',
-    content => template('sabnzbd/etc-default-sabnzbdplus.erb'),
-  }
-
 }

@@ -3,14 +3,29 @@ class sabnzbd::package {
   include 'unrar'
   include 'unzip'
   include 'par2'
+  include 'python_yenc'
+  include 'python_feedparser'
+  include 'python_support'
+  include 'python_cheetah'
+  include 'python_configobj'
+  include 'python_dbus'
+  include 'python_openssl'
   require 'sabnzbd::user'
 
-  # Add the sabnzbd PPA
-  apt::ppa { 'ppa:jcfp/ppa': }
+  file { '/opt/sabnzbd':
+    ensure => directory,
+    owner  => 'sabnzbd',
+    group  => 'sabnzbd',
+    mode   => '0755',
+  }
 
-  package { 'sabnzbdplus':
-    ensure  => installed,
-    require => Apt::Ppa['ppa:jcfp/ppa'],
+  vcsrepo { '/opt/sabnzbd':
+    ensure   => present,
+    provider => git,
+    source   => 'https://github.com/sabnzbd/sabnzbd.git',
+    user     => 'sabnzbd',
+    require  => File['/opt/sabnzbd'],
+    notify   => Supervisor::Service['sabnzbd'],
   }
 
 }
