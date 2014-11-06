@@ -9,6 +9,7 @@ class sabnzbd::config (
   $unprocessed_downloads_prefix,
   $processed_downloads_prefix,
   $tv_directory,
+  $headphones_input_directory,
 ) {
 
   require 'sabnzbd::package'
