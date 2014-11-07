@@ -14,12 +14,14 @@ class sickbeard::service {
   ]
 
   supervisor::service { 'sickbeard':
-    ensure     => 'running',
-    directory  => '/opt/sickbeard',
-    user       => 'sickbeard',
-    stopsignal => 'INT',
-    subscribe  => Class['sickbeard::config'],
-    command    => shellquote($supervisor_cmd),
+    ensure         => 'running',
+    directory      => '/opt/sickbeard',
+    user           => 'sickbeard',
+    stopsignal     => 'INT',
+    subscribe      => Class['sickbeard::config'],
+    command        => shellquote($supervisor_cmd),
+    stdout_logfile => 'syslog',
+    stderr_logfile => 'syslog',
   }
 
 }

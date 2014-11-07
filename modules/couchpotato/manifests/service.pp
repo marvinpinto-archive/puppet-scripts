@@ -13,12 +13,14 @@ class couchpotato::service {
   ]
 
   supervisor::service { 'couchpotato':
-    ensure     => 'running',
-    directory  => '/opt/couchpotato',
-    user       => 'couchpotato',
-    stopsignal => 'INT',
-    subscribe  => Class['couchpotato::config'],
-    command    => shellquote($supervisor_cmd),
+    ensure         => 'running',
+    directory      => '/opt/couchpotato',
+    user           => 'couchpotato',
+    stopsignal     => 'INT',
+    subscribe      => Class['couchpotato::config'],
+    command        => shellquote($supervisor_cmd),
+    stdout_logfile => 'syslog',
+    stderr_logfile => 'syslog',
   }
 
   exec { 'load-couchpotato-profiles':

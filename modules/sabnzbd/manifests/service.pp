@@ -19,12 +19,14 @@ class sabnzbd::service (
   ]
 
   supervisor::service { 'sabnzbd':
-    ensure     => 'running',
-    directory  => '/opt/sabnzbd',
-    user       => 'sabnzbd',
-    stopsignal => 'INT',
-    subscribe  => Class['sabnzbd::config'],
-    command    => shellquote($supervisor_cmd),
+    ensure         => 'running',
+    directory      => '/opt/sabnzbd',
+    user           => 'sabnzbd',
+    stopsignal     => 'INT',
+    subscribe      => Class['sabnzbd::config'],
+    command        => shellquote($supervisor_cmd),
+    stdout_logfile => 'syslog',
+    stderr_logfile => 'syslog',
   }
 
 }
