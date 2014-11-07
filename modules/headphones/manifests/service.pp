@@ -15,12 +15,14 @@ class headphones::service {
   ]
 
   supervisor::service { 'headphones':
-    ensure     => 'running',
-    directory  => '/opt/headphones',
-    user       => 'headphones',
-    stopsignal => 'INT',
-    subscribe  => Class['headphones::config'],
-    command    => shellquote($supervisor_cmd),
+    ensure         => 'running',
+    directory      => '/opt/headphones',
+    user           => 'headphones',
+    stopsignal     => 'INT',
+    subscribe      => Class['headphones::config'],
+    command        => shellquote($supervisor_cmd),
+    stdout_logfile => 'syslog',
+    stderr_logfile => 'syslog',
   }
 
 }

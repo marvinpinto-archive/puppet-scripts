@@ -27,14 +27,16 @@ class plexapp::service {
   ]
 
   supervisor::service { 'plexapp':
-    ensure      => 'running',
-    directory   => '/usr/lib/plexmediaserver',
-    user        => 'plex',
-    stopsignal  => 'INT',
-    subscribe   => Class['plexapp::config'],
-    environment => join($env_vars, ','),
-    command     => shellquote($supervisor_cmd),
-    require     => Service['plexmediaserver'],
+    ensure         => 'running',
+    directory      => '/usr/lib/plexmediaserver',
+    user           => 'plex',
+    stopsignal     => 'INT',
+    subscribe      => Class['plexapp::config'],
+    environment    => join($env_vars, ','),
+    command        => shellquote($supervisor_cmd),
+    require        => Service['plexmediaserver'],
+    stdout_logfile => 'syslog',
+    stderr_logfile => 'syslog',
   }
 
   exec { 'load-plexapp-profiles':
