@@ -5,6 +5,7 @@
 
 import requests
 import json
+import time
 
 cp_url = "http://localhost:<%= @web_port %>/couchpotato/api/<%= @cp_api_key %>"
 hd_profile_name = 'Marvin-HD'
@@ -50,6 +51,27 @@ def delete_profile(profileid):
     delete_profile = { 'id': profileid }
     r = requests.get(cp_url + '/profile.delete/', params=delete_profile)
     print r.json()
+
+def is_server_alive(endpoint):
+    try:
+        r = requests.get("%s/%s" % (cp_url, endpoint))
+    except requests.ConnectionError, e:
+        return False
+    if r.status_code != 200:
+        return False
+    return True
+
+# Make sure the server is alive before attempting to do anything
+is_alive = False
+for x in range (0, 9):
+    if is_server_alive('profile.list/'):
+        is_alive = True
+        break
+    time.sleep(0.5)
+
+if not is_alive:
+    print "Been waiting too long for the server to come up"
+    exit(1)
 
 # First go through and delete our custom profiles, if present
 r = requests.get(cp_url + '/profile.list/')

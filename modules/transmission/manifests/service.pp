@@ -17,13 +17,13 @@ class transmission::service {
   ]
 
   supervisor::service { 'transmission':
-    ensure      => 'running',
-    directory   => '/var/lib/transmission',
-    user        => 'transmission',
-    stopsignal  => 'INT',
-    subscribe   => Class['transmission::config'],
-    command     => shellquote($supervisor_cmd),
-    require     => Service['transmission-daemon'],
+    ensure     => 'running',
+    directory  => '/var/lib/transmission',
+    user       => 'transmission',
+    stopsignal => 'INT',
+    subscribe  => Class['transmission::config'],
+    command    => shellquote($supervisor_cmd),
+    require    => Service['transmission-daemon'],
   }
 
 }
