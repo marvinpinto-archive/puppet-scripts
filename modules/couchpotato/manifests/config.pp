@@ -6,6 +6,7 @@ class couchpotato::config (
   $bt_autoprocess_output_dir,
   $usenet_crawler_api_key,
   $cp_api_key,
+  $transmission_port,
 ) {
 
   require 'couchpotato::package'
