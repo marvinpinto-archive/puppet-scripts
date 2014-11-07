@@ -5,6 +5,8 @@ class headphones::config (
   $usenet_crawler_api_key,
   $sabnzbd_port,
   $music_directory,
+  $bt_autoprocess_output_dir,
+  $transmission_port,
 ) {
 
   require 'headphones::package'

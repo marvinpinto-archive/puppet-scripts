@@ -82,7 +82,7 @@ username = couchpotato
 delete_failed = True
 completed_directory = 
 manual = 0
-enabled = 1
+enabled = 0
 label = couchpotato
 paused = False
 host = localhost:58846
@@ -165,11 +165,11 @@ stalled_as_failed = True
 delete_failed = True
 rpc_url = transmission
 manual = 0
-enabled = 0
+enabled = 1
 paused = False
-host = http://localhost:9091
+host = http://localhost:<%= @transmission_port %>
 delete_files = True
-directory = 
+directory = <%= @bt_autoprocess_output_dir %>/couchpotato
 remove_complete = True
 password = 
 

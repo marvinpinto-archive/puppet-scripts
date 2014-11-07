@@ -2,6 +2,7 @@ class nzb_post_processing (
   $base_directory,
   $media_group,
   $bt_autoprocess_output_dir,
+  $transmission_port,
 ) {
 
   file { $base_directory:
