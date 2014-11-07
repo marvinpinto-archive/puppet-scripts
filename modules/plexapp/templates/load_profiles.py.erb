@@ -5,6 +5,7 @@
 
 import requests
 from xml.etree import ElementTree
+import time
 
 plex_url = "http://127.0.0.1:32400"
 
@@ -66,6 +67,27 @@ def add_music_library():
     if r.status_code != 201:
         print "Did not get the expected 201 response"
         exit(1)
+
+def is_server_alive(endpoint):
+    try:
+        r = requests.get("%s/%s" % (plex_url, endpoint))
+    except requests.ConnectionError, e:
+        return False
+    if r.status_code != 200:
+        return False
+    return True
+
+# Make sure the server is alive before attempting to do anything
+is_alive = False
+for x in range (0, 9):
+    if is_server_alive('library/sections'):
+        is_alive = True
+        break
+    time.sleep(0.5)
+
+if not is_alive:
+    print "Been waiting too long for the server to come up"
+    exit(1)
 
 delete_all_libraries()
 add_movie_library()
