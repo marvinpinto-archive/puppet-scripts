@@ -77,20 +77,6 @@ enabled = 0
 create_subdir = 0
 use_for = both
 
-[deluge]
-username = couchpotato
-delete_failed = True
-completed_directory = 
-manual = 0
-enabled = 0
-label = couchpotato
-paused = False
-host = localhost:58846
-delete_files = True
-directory = <%= @bt_autoprocess_output_dir %>/
-remove_complete = True
-password = couchpotato
-
 [nzbget]
 username = nzbget
 category = Movies
@@ -584,4 +570,18 @@ cron_minute = 31
 always_search = False
 run_on_launch = 0
 search_on_add = 1
+
+[deluge]
+username = 
+delete_failed = True
+completed_directory = 
+manual = 0
+enabled = 0
+label = 
+paused = False
+host = localhost:58846
+delete_files = True
+directory = 
+remove_complete = True
+password = 
 
