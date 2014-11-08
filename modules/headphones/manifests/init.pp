@@ -5,5 +5,6 @@ class headphones {
   include 'headphones::config'
   include 'headphones::service'
   include 'headphones::cron'
+  include 'headphones::backups'
 
 }
