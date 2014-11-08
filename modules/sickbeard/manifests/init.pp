@@ -4,5 +4,6 @@ class sickbeard {
   include 'sickbeard::package'
   include 'sickbeard::config'
   include 'sickbeard::service'
+  include 'sickbeard::cron'
 
 }

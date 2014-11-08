@@ -22,4 +22,12 @@ class sabnzbd::config (
     content => template('sabnzbd/sabnzbd.ini.erb'),
   }
 
+  file { '/var/lib/sabnzbd/sab-cleanup.sh':
+    ensure  => file,
+    mode    => '0755',
+    owner   => 'sabnzbd',
+    group   => 'sabnzbd',
+    content => template('sabnzbd/sab-cleanup.sh.erb'),
+  }
+
 }

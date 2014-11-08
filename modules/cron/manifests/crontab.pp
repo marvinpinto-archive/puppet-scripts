@@ -7,7 +7,7 @@ define cron::crontab (
   $command,
   $user,
   $mailto = '',
-  $enabled = true,
+  $enabled = 'yes',
 ) {
 
   file { "crontab-entry-for-${name}":

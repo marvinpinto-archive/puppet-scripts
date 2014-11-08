@@ -39,4 +39,12 @@ class plexapp::config (
     content => template('plexapp/load_profiles.py.erb'),
   }
 
+  file { '/var/lib/plexmediaserver/plex-cleanup.sh':
+    ensure  => file,
+    mode    => '0755',
+    owner   => 'plex',
+    group   => 'plex',
+    content => template('plexapp/plex-cleanup.sh.erb'),
+  }
+
 }

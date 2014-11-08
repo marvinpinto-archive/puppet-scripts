@@ -4,5 +4,6 @@ class couchpotato {
   include 'couchpotato::package'
   include 'couchpotato::config'
   include 'couchpotato::service'
+  include 'couchpotato::cron'
 
 }

@@ -5,5 +5,6 @@ class sabnzbd {
   include 'sabnzbd::package'
   include 'sabnzbd::config'
   include 'sabnzbd::service'
+  include 'sabnzbd::cron'
 
 }
