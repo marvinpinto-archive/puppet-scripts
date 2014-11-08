@@ -1,0 +1,77 @@
+#!/bin/bash
+
+# This tiny little script is intended to be run as a cron job and will take
+# care of cleaning up after sickbeard
+
+myname=`basename "$0"`
+
+# Determine if this script is running interactively or not
+/usr/bin/tty -s
+INTERACTIVE=$?
+
+# pipefail is useful
+set -o pipefail
+
+info() {
+  # This allows us to use this bash function as a pipe destination which makes
+  # logging slightly easier
+  while read INPUT; do
+    /usr/bin/logger --id --priority local3.info --tag ${myname} "INFO: $INPUT"
+    if [ "$INTERACTIVE" -eq 0 ]; then
+      echo "INFO: $INPUT"
+    fi
+  done
+}
+
+info_stdout() {
+  /usr/bin/logger --id --priority local3.info --tag ${myname} "INFO: $@"
+  if [ "$INTERACTIVE" -eq 0 ]; then
+    echo "INFO: $@"
+  fi
+}
+
+error() {
+  /usr/bin/logger --id --stderr --priority local3.err --tag ${myname} "ERROR: $@"
+  exit 1
+}
+
+clean_history() {
+  info_stdout "Clearing history"
+  output=$(curl -s "http://localhost:<%= @web_port %>/<%= @web_base %>/api/<%= @sb_api_key %>/?cmd=history.clear")
+  retval=$?
+  info_stdout $output
+  return $retval
+}
+
+clean_logs() {
+  info_stdout "Clearing logs"
+  output=$(find /var/lib/sickbeard/Logs -type f -not -name 'sickbeard.log' | xargs -0 -r rm)
+  info_stdout $output
+  :> /var/lib/sickbeard/Logs/sickbeard.log
+}
+
+LOCKFILE=/tmp/${myname}.lock
+if [ -e ${LOCKFILE} ] && kill -0 `cat ${LOCKFILE}`; then
+  error "${myname} is already running"
+fi
+
+# make sure the lockfile is removed when we exit and then claim it
+trap "rm -f ${LOCKFILE}; exit" INT TERM EXIT
+
+# echo our PID into the lockfile
+echo $$ > ${LOCKFILE}
+
+info_stdout "Beginning ${myname} cleanup"
+
+clean_history
+if [ $? != 0 ]; then
+  error "Somethiing went wrong when attempting to clean out the history"
+fi
+
+clean_logs
+if [ $? != 0 ]; then
+  error "Somethiing went wrong when attempting to clean out the logs"
+fi
+
+# Clean out the lockfile
+rm -f ${LOCKFILE}
