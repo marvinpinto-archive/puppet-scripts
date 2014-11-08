@@ -5,5 +5,6 @@ class plexapp {
   include 'plexapp::package'
   include 'plexapp::config'
   include 'plexapp::service'
+  include 'plexapp::cron'
 
 }
