@@ -27,4 +27,12 @@ class couchpotato::config (
     content => template('couchpotato/load_profiles.py.erb'),
   }
 
+  file { '/var/lib/couchpotato/cp-cleanup.sh':
+    ensure  => file,
+    mode    => '0755',
+    owner   => 'couchpotato',
+    group   => 'couchpotato',
+    content => template('couchpotato/cp-cleanup.sh.erb'),
+  }
+
 }
