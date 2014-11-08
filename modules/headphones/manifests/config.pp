@@ -19,4 +19,12 @@ class headphones::config (
     content => template('headphones/config.ini.erb'),
   }
 
+  file { '/var/lib/headphones/hp-cleanup.sh':
+    ensure  => file,
+    mode    => '0755',
+    owner   => 'headphones',
+    group   => 'headphones',
+    content => template('headphones/hp-cleanup.sh.erb'),
+  }
+
 }

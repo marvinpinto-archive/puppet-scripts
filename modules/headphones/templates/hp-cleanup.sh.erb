@@ -1,0 +1,90 @@
+#!/bin/bash
+
+# This tiny little script is intended to be run as a cron job and will take
+# care of cleaning up after headphones
+
+myname=`basename "$0"`
+
+# Determine if this script is running interactively or not
+/usr/bin/tty -s
+INTERACTIVE=$?
+
+# pipefail is useful
+set -o pipefail
+
+info() {
+  # This allows us to use this bash function as a pipe destination which makes
+  # logging slightly easier
+  while read INPUT; do
+    /usr/bin/logger --id --priority local3.info --tag ${myname} "INFO: $INPUT"
+    if [ "$INTERACTIVE" -eq 0 ]; then
+      echo "INFO: $INPUT"
+    fi
+  done
+}
+
+info_stdout() {
+  /usr/bin/logger --id --priority local3.info --tag ${myname} "INFO: $@"
+  if [ "$INTERACTIVE" -eq 0 ]; then
+    echo "INFO: $@"
+  fi
+}
+
+error() {
+  /usr/bin/logger --id --stderr --priority local3.err --tag ${myname} "ERROR: $@"
+  exit 1
+}
+
+clear_history() {
+  info_stdout "Clearing history"
+  output=$(curl -s "http://localhost:<%= @web_port %>/<%= @web_base %>/clearhistory?type=all")
+  retval=$?
+  info_stdout $output
+  return $retval
+}
+
+clear_logs() {
+  info_stdout "Clearing logs"
+  output=$(curl -s "http://localhost:<%= @web_port %>/<%= @web_base %>/clearLogs")
+  retval=$?
+  info_stdout $output
+  return $retval
+}
+
+clean_logs() {
+  info_stdout "Cleaning logs"
+  output=$(find /var/lib/headphones/logs -type f -not -name 'headphones.log' | xargs -0 -r rm)
+  info_stdout $output
+  :> /var/lib/headphones/logs/headphones.log
+}
+
+LOCKFILE=/tmp/${myname}.lock
+if [ -e ${LOCKFILE} ] && kill -0 `cat ${LOCKFILE}`; then
+  error "${myname} is already running"
+fi
+
+# make sure the lockfile is removed when we exit and then claim it
+trap "rm -f ${LOCKFILE}; exit" INT TERM EXIT
+
+# echo our PID into the lockfile
+echo $$ > ${LOCKFILE}
+
+info_stdout "Beginning ${myname} cleanup"
+
+clear_history
+if [ $? != 0 ]; then
+  error "Somethiing went wrong when attempting to clear history"
+fi
+
+clear_logs
+if [ $? != 0 ]; then
+  error "Somethiing went wrong when attempting to clear logs"
+fi
+
+clean_logs
+if [ $? != 0 ]; then
+  error "Somethiing went wrong when attempting to clean logs"
+fi
+
+# Clean out the lockfile
+rm -f ${LOCKFILE}
