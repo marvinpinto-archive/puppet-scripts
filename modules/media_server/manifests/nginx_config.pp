@@ -2,6 +2,7 @@ class media_server::nginx_config (
   $server_name,
   $sabnzbd_web_port = hiera('sabnzbd::config::web_port'),
   $couchpotato_web_port = hiera('couchpotato::config::web_port'),
+  $couchpotato_web_base = hiera('couchpotato::config::web_base'),
   $sickbeard_web_port = hiera('sickbeard::config::web_port'),
   $sickbeard_web_base = hiera('sickbeard::config::web_base'),
   $headphones_web_port = hiera('headphones::config::web_port'),
