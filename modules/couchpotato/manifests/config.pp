@@ -1,5 +1,6 @@
 class couchpotato::config (
   $web_port,
+  $web_base,
   $sabnzbd_port,
   $couchpotato_input_directory,
   $movies_directory,
