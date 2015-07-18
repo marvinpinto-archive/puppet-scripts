@@ -6,7 +6,9 @@ define irssi::bitlbee_nick_instance (
   $bitlbee_group = 'bitlbee',
 ) {
 
-  file {"/var/lib/bitlbee/${title}.xml":
+  $nick = $title
+
+  file {"/var/lib/bitlbee/${nick}.xml":
     ensure  => file,
     content => template('irssi/bitlbee-nick.xml.erb'),
     owner   => $bitlbee_user,
